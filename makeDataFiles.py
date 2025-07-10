@@ -3,8 +3,14 @@
 2. Get a list of 50 ID's
 3. Get the shot data per player
 4. Save the data in a JSON file
+
+JSON FILE FORMAT
+player id
+player name
+shot list
 """
 from nba_api.stats.endpoints import ShotChartDetail
+from nba_api.stats.static import players
 
 def getPlayerNamesFromFile(file_path: str) -> list[str]:
     """
@@ -15,10 +21,14 @@ def getPlayerNamesFromFile(file_path: str) -> list[str]:
 
     Returns:
         list[str]: A list of player names.
-    """
-    pass
 
-def getPlayerID(name: str) -> int:
+    """
+
+    with open(file_path, 'r') as file:
+        player_names = [line.strip() for line in file if line.strip()]
+    return player_names
+
+def getPlayerID(name: str) -> int or None:
     """
     Get the player ID for a given player name.
 
@@ -28,7 +38,10 @@ def getPlayerID(name: str) -> int:
     Returns:
         int: The player ID.
     """
-    pass
+    matches = players.find_players_by_full_name(name)
+    if matches:
+        return matches[0]['id']
+    return None
 
 def getSeasonShots(player_id: int, season: str = '2024-25') -> list[dict]:
     """
