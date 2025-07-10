@@ -63,21 +63,8 @@ def getSeasonShots(player_id: int, season: str = '2024-25') -> list[dict]:
         context_measure_simple = 'FGA'  # crucial to include missed shots
     )
 
-    return shotlog.get_data_frames()
+    return shotlog.get_data_frames()[0]
 
 if __name__ == "__main__":
-    """
-    Example usage:
-    
-    shotlog = ShotChartDetail(
-        team_id=0,  # 0 = all teams
-        player_id=2544,  # LeBron James, for example
-        season_nullable='2024-25',
-        season_type_all_star='Regular Season',
-        context_measure_simple='FGA'  # crucial to include missed shots
-    )
-
-    df = shotlog.get_data_frames()[0]
-    print(df)
-    """
+    print("please do not put slurs in the player names file")
 
