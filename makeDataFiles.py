@@ -66,5 +66,27 @@ def getSeasonShots(player_id: int, season: str = '2024-25') -> list[dict]:
     return shotlog.get_data_frames()[0]
 
 if __name__ == "__main__":
-    print("please do not put slurs in the player names file")
+    for name in getPlayerNamesFromFile('players.txt'):
+        player_id = getPlayerID(name)
+        if player_id:
+            shots = getSeasonShots(player_id, '2024-25') # Add this list to the file
 
+"""
+{
+    player_id: ####,
+    player_name: "Player Name",
+    shots: [
+        {
+            "EVENT_TYPE": "Jump Shot",
+            "SHOT_ZONE_BASIC": "Mid-Range",
+            "SHOT_ZONE_AREA": "Left Side Center",
+            "SHOT_ZONE_RANGE": "16-24 ft.",
+            "SHOT_DISTANCE": 18.0,
+            "LOC_X": -150.0,
+            "LOC_Y": 200.0,
+            "SHOT_MADE_FLAG": 1
+        },
+        ...
+    ]
+}
+"""
