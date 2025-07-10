@@ -9,6 +9,7 @@ player id
 player name
 shot list
 """
+
 from nba_api.stats.endpoints import ShotChartDetail
 from nba_api.stats.static import players
 
@@ -45,7 +46,7 @@ def getPlayerID(name: str) -> int or None:
 
 def getSeasonShots(player_id: int, season: str = '2024-25') -> list[dict]:
     """
-    Get the shot data for a specific player in a given season.
+    Gets the shot data for a specific player in a given season.
 
     Args:
         player_id (int): The ID of the player.
@@ -54,7 +55,15 @@ def getSeasonShots(player_id: int, season: str = '2024-25') -> list[dict]:
     Returns:
         list[dict]: A list of dictionaries containing shot data for the player.
     """
-    pass
+    shotlog = ShotChartDetail(
+        team_id = 0,  # 0 = all teams
+        player_id = player_id,
+        season_nullable = '2024-25',
+        season_type_all_star = 'Regular Season',
+        context_measure_simple = 'FGA'  # crucial to include missed shots
+    )
+
+    return shotlog.get_data_frames()
 
 if __name__ == "__main__":
     """
