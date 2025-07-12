@@ -1,6 +1,6 @@
 """
 1. Get player id's from names
-2. Get a list of 50 ID's
+2. Get a list of 50 IDs
 3. Get the shot data per player
 4. Save the data in a JSON file
 
@@ -69,7 +69,14 @@ if __name__ == "__main__":
     for name in getPlayerNamesFromFile('players.txt'):
         player_id = getPlayerID(name)
         if player_id:
-            shots = getSeasonShots(player_id, '2024-25') # Add this list to the file
+            shots = getSeasonShots(player_id, '2024-25')[("SHOT_MADE_FLAG", "LOC_X", "LOC_Y")]
+
+            # Filter to only less than half court, then reorient to the center of half-court
+            shots = shots[shots['LOC_Y'].between(0, 564)].copy()
+            shots['LOC_Y'] = shots['LOC_Y'] - 282
+
+            print(shots)
+            break
 
 """
 {
