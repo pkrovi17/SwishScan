@@ -7,7 +7,7 @@ https://github.com/swar/nba_api/
 1. Frontend (Web or Mobile)
 swift for ios
 2. Backend
-Python (FastAPI or Flask) – lightweight, async-friendly API server (flask prolly)
+Python (flask prolly)
 3. Video Processing & Analysis
 OpenCV – for frame extraction, preprocessing, and visual annotations
 MediaPipe – fast and easy hand/pose tracking from Google
