@@ -1,28 +1,49 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    
+    var body: some View {
+        TabView {
+            HomeView()
+                .tabItem {
+                    Image(systemName: "house")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 30)
+                    Text("Home")
+                }
+            CalendarView()
+                .tabItem {
+                    Image(systemName: "clock")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 30)
+                    Text("Archive")
+                }
+            ProfessionalView()
+                .tabItem {
+                    Image(systemName: "person")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 30)
+                    Text("Database")
+                }
+        }
+    }
+}
+
+struct HomeView: View {
     @State private var showCamera = false
     
     var body: some View {
         VStack {
             // Top settings and welcome
-            ZStack {
-                HStack {
-                    Button(action: {
-                        // SETTINGS MENU
-                    }) {
-                        Image(systemName: "ellipsis.circle")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 27)
-                            .padding(.horizontal)
-                    }
-                    Spacer()
-                }
-                Text("Hello, Person!")
-                    .font(.title3)
-                    .bold()
-                Spacer()
+            VStack {
+                Text("Hi, [name]. \n\nWhat should we work on today?")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.top, 50)
             }
             
             Spacer()
@@ -43,7 +64,7 @@ struct ContentView: View {
                                 .bold()
                                 .padding(.top, 7)
                         }
-                        .frame(maxWidth: 120, minHeight: 120) // 👈 Equal sizing
+                        .frame(maxWidth: 120, minHeight: 120)
                         .padding()
                         .background(Color(red: 0, green: 0, blue: 0.5))
                         .clipShape(RoundedRectangle(cornerRadius: 15))
@@ -52,10 +73,27 @@ struct ContentView: View {
             }
             .padding(.horizontal)
             Spacer()
+            Spacer()
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView()
         }
+    }
+}
+
+struct CalendarView: View {
+    @State private var showCamera = false
+    
+    var body: some View {
+        Text("Under Construction n shit")
+    }
+}
+
+struct ProfessionalView: View {
+    @State private var showCamera = false
+    
+    var body: some View {
+        Text("Under Construction n shit numba 2")
     }
 }
 
