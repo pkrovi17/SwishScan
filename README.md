@@ -1,11 +1,11 @@
-# SwishScan
+# SwishScan <- please come up with something better this is so bad
 Basketball
 install nba api with 
 - pip install nba_api
 https://github.com/swar/nba_api/
 
-1. Frontend (Web or Mobile)
-swift for ios
+1. Frontend
+swift & swiftui for ios
 2. Backend
 Python (flask prolly)
 3. Video Processing & Analysis
