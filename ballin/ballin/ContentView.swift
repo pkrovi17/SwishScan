@@ -39,11 +39,15 @@ struct HomeView: View {
     var body: some View {
         VStack {
             // Top settings and welcome
-            VStack {
-                Text("Hi, [name]. \n\nWhat should we work on today?")
+            VStack (alignment: .leading){
+                Text("Hi, [name].")
+                    .font(.title)
+                    .fontWeight(.medium)
+                    .padding(.top, 50)
+                Text("What should we work on today?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.top, 50)
+                    .padding(.top, 1)
             }
             
             Spacer()
@@ -55,7 +59,7 @@ struct HomeView: View {
                         showCamera = true
                     }) {
                         VStack {
-                            Image(systemName: title == "Accuracy" ? "target" : "waveform")
+                            Image(systemName: title == "Accuracy" ? "scope" : "scribble")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(height: 60)
@@ -74,6 +78,10 @@ struct HomeView: View {
             .padding(.horizontal)
             Spacer()
             Spacer()
+            Text("Last session was _ days ago.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 24)
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView()
