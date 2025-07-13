@@ -78,20 +78,31 @@ if __name__ == "__main__":
 
 """
 {
-    player_id: ####,
-    player_name: "Player Name",
-    shots: [
-        {
-            "EVENT_TYPE": "Jump Shot",
-            "SHOT_ZONE_BASIC": "Mid-Range",
-            "SHOT_ZONE_AREA": "Left Side Center",
-            "SHOT_ZONE_RANGE": "16-24 ft.",
-            "SHOT_DISTANCE": 18.0,
-            "LOC_X": -150.0,
-            "LOC_Y": 200.0,
-            "SHOT_MADE_FLAG": 1
-        },
-        ...
-    ]
+    "12345": {
+        "player_id": 12345,
+        "player_name": "Player Name",
+        "shots": [
+            {
+                "EVENT_TYPE": "Jump Shot",
+                "SHOT_ZONE_BASIC": "Mid-Range",
+                "SHOT_ZONE_AREA": "Left Side Center",
+                "SHOT_ZONE_RANGE": "16-24 ft.",
+                "SHOT_DISTANCE": 18.0,
+                "LOC_X": -150.0,
+                "LOC_Y": 200.0,
+                "SHOT_MADE_FLAG": 1
+            },
+            {
+                "EVENT_TYPE": "Layup Shot",
+                "SHOT_ZONE_BASIC": "Restricted Area",
+                "SHOT_ZONE_AREA": "Center",
+                "SHOT_ZONE_RANGE": "Less Than 8 ft.",
+                "SHOT_DISTANCE": 2.0,
+                "LOC_X": 30.0,
+                "LOC_Y": 10.0,
+                "SHOT_MADE_FLAG": 0
+            }
+        ]
+    }
 }
 """
