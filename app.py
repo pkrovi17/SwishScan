@@ -15,9 +15,17 @@ import asyncio
 from pydantic import BaseModel
 
 # Add the pre_analysis directory to the path
-sys.path.append(str(Path(__file__).parent / "pre_analysis"))
+current_dir = Path(__file__).parent
+pre_analysis_path = current_dir / "pre_analysis"
+sys.path.insert(0, str(pre_analysis_path))
 
-from standardizer import VideoStandardizer
+try:
+    from pre_analysis.standardizer import VideoStandardizer
+except ImportError as e:
+    print(f"Error importing standardizer: {e}")
+    print(f"Looking for standardizer.py in: {pre_analysis_path}")
+    print(f"Current sys.path: {sys.path}")
+    raise
 
 # FastAPI app configuration
 app = FastAPI(
