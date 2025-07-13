@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
 import tempfile
 from datetime import datetime
+import mediapipe as mp
 
 class VideoStandardizer:
     def __init__(self):
@@ -13,6 +14,30 @@ class VideoStandardizer:
         self.max_shot_duration = 10.0  # Maximum shot duration in seconds
         self.motion_threshold = 0.1  # Threshold for motion detection
         self.frame_rate = 30  # Target frame rate for standardization
+        
+        # Create tracked_data directory
+        self.tracked_data_dir = "tracked_data"
+        os.makedirs(self.tracked_data_dir, exist_ok=True)
+        
+        # Initialize MediaPipe for pose and hand tracking
+        self.mp_pose = mp.solutions.pose
+        self.mp_hands = mp.solutions.hands
+        self.mp_drawing = mp.solutions.drawing_utils
+        self.mp_drawing_styles = mp.solutions.drawing_styles
+        
+        # Pose detection settings
+        self.pose = self.mp_pose.Pose(
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5,
+            model_complexity=1
+        )
+        
+        # Hand detection settings
+        self.hands = self.mp_hands.Hands(
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5,
+            max_num_hands=2
+        )
         
     def standardize_video(self, video_path: str) -> List[Dict[str, Any]]:
         """
@@ -103,7 +128,7 @@ class VideoStandardizer:
     
     def _find_shot_boundaries(self, motion_scores: List[float], fps: float) -> List[Dict[str, Any]]:
         """
-        Find shot boundaries based on motion analysis
+        Find shot boundaries based on motion analysis and pose detection
         
         Args:
             motion_scores: List of motion scores for each frame
@@ -145,14 +170,14 @@ class VideoStandardizer:
         current_segment["end"] = high_motion_frames[-1]
         segments.append(current_segment)
         
-        # Filter segments by duration and add padding
+        # Filter segments by duration and add precise padding
         filtered_segments = []
         for segment in segments:
             duration = (segment["end"] - segment["start"]) / fps
             
             if min_frames <= (segment["end"] - segment["start"]) <= max_frames:
-                # Add padding before and after the shot
-                padding_frames = int(0.5 * fps)  # 0.5 second padding
+                # Add minimal padding - just enough to capture the complete shot
+                padding_frames = int(0.3 * fps)  # 0.3 second padding for precise cutting
                 
                 start_frame = max(0, segment["start"] - padding_frames)
                 end_frame = min(len(motion_scores) - 1, segment["end"] + padding_frames)
@@ -180,20 +205,20 @@ class VideoStandardizer:
             Dictionary containing standardized shot data
         """
         try:
-            # Extract the shot segment as a separate video
+            # Extract the shot segment as a separate video with tracking
             shot_video_path = self._extract_shot_video(video_path, segment, shot_index)
             
             # Analyze the shot video
             shot_analysis = self._analyze_shot_video(shot_video_path, segment)
             
-            # Clean up temporary file
-            if os.path.exists(shot_video_path):
-                os.remove(shot_video_path)
+            # Keep the tracked video file for analysis
+            # The video now contains motion tracking overlays
             
             return {
                 "shot_id": f"shot_{shot_index:03d}",
                 "segment_info": segment,
                 "video_path": shot_video_path,
+                "tracking_file": os.path.join(self.tracked_data_dir, f"shot_{shot_index:03d}_tracking.json"),
                 "analysis": shot_analysis,
                 "timestamp": datetime.now().isoformat()
             }
@@ -204,7 +229,7 @@ class VideoStandardizer:
     
     def _extract_shot_video(self, video_path: str, segment: Dict[str, Any], shot_index: int) -> str:
         """
-        Extract a shot segment as a separate video file
+        Extract a shot segment as a separate video file with motion tracking overlays
         
         Args:
             video_path: Path to the original video
@@ -212,7 +237,7 @@ class VideoStandardizer:
             shot_index: Index of the shot
             
         Returns:
-            Path to the extracted shot video
+            Path to the extracted shot video with tracking overlays
         """
         cap = cv2.VideoCapture(video_path)
         
@@ -222,24 +247,196 @@ class VideoStandardizer:
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         
         # Create output video writer
-        output_path = f"temp_shot_{shot_index:03d}.mp4"
+        output_path = os.path.join(self.tracked_data_dir, f"shot_{shot_index:03d}_tracked.mp4")
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
         
         # Seek to start frame
         cap.set(cv2.CAP_PROP_POS_FRAMES, segment["start_frame"])
         
-        # Extract frames for the shot segment
+        # Track motion data for overlays
+        pose_trajectories = []
+        hand_trajectories = []
+        ball_trajectories = []
+        
+        # Extract frames for the shot segment with tracking
         for frame_idx in range(segment["start_frame"], segment["end_frame"] + 1):
             ret, frame = cap.read()
             if not ret:
                 break
-            out.write(frame)
+            
+            # Create a copy for drawing
+            annotated_frame = frame.copy()
+            
+            # Detect pose and hands
+            pose_results = self.pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            hand_results = self.hands.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            
+            # Draw pose landmarks
+            if pose_results.pose_landmarks:
+                self.mp_drawing.draw_landmarks(
+                    annotated_frame,
+                    pose_results.pose_landmarks,
+                    self.mp_pose.POSE_CONNECTIONS,
+                    landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style()
+                )
+                
+                # Track arm positions
+                left_wrist = pose_results.pose_landmarks.landmark[self.mp_pose.PoseLandmark.LEFT_WRIST]
+                right_wrist = pose_results.pose_landmarks.landmark[self.mp_pose.PoseLandmark.RIGHT_WRIST]
+                left_shoulder = pose_results.pose_landmarks.landmark[self.mp_pose.PoseLandmark.LEFT_SHOULDER]
+                right_shoulder = pose_results.pose_landmarks.landmark[self.mp_pose.PoseLandmark.RIGHT_SHOULDER]
+                
+                # Convert to pixel coordinates
+                left_wrist_pos = (int(left_wrist.x * width), int(left_wrist.y * height))
+                right_wrist_pos = (int(right_wrist.x * width), int(right_wrist.y * height))
+                left_shoulder_pos = (int(left_shoulder.x * width), int(left_shoulder.y * height))
+                right_shoulder_pos = (int(right_shoulder.x * width), int(right_shoulder.y * height))
+                
+                # Store trajectories
+                pose_trajectories.append({
+                    'frame': frame_idx,
+                    'left_wrist': left_wrist_pos,
+                    'right_wrist': right_wrist_pos,
+                    'left_shoulder': left_shoulder_pos,
+                    'right_shoulder': right_shoulder_pos
+                })
+                
+                # Draw arm lines
+                cv2.line(annotated_frame, left_shoulder_pos, left_wrist_pos, (0, 255, 0), 3)
+                cv2.line(annotated_frame, right_shoulder_pos, right_wrist_pos, (0, 255, 0), 3)
+            
+            # Draw hand landmarks
+            if hand_results.multi_hand_landmarks:
+                for hand_landmarks in hand_results.multi_hand_landmarks:
+                    self.mp_drawing.draw_landmarks(
+                        annotated_frame,
+                        hand_landmarks,
+                        self.mp_hands.HAND_CONNECTIONS,
+                        self.mp_drawing_styles.get_default_hand_landmarks_style(),
+                        self.mp_drawing_styles.get_default_hand_connections_style()
+                    )
+                    
+                    # Track hand positions
+                    wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
+                    wrist_pos = (int(wrist.x * width), int(wrist.y * height))
+                    hand_trajectories.append({
+                        'frame': frame_idx,
+                        'wrist': wrist_pos
+                    })
+            
+            # Detect and track ball (simple color-based detection)
+            ball_pos = self._detect_ball(frame)
+            if ball_pos:
+                ball_trajectories.append({
+                    'frame': frame_idx,
+                    'position': ball_pos
+                })
+                # Draw ball tracking
+                cv2.circle(annotated_frame, ball_pos, 15, (0, 0, 255), -1)
+                cv2.circle(annotated_frame, ball_pos, 20, (255, 255, 255), 2)
+            
+            # Draw trajectory trails
+            self._draw_trajectory_trails(annotated_frame, pose_trajectories, hand_trajectories, ball_trajectories)
+            
+            # Add frame counter and shot info
+            cv2.putText(annotated_frame, f"Shot {shot_index+1}", (10, 30), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+            cv2.putText(annotated_frame, f"Frame: {frame_idx}", (10, 70), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+            
+            out.write(annotated_frame)
         
         cap.release()
         out.release()
         
+        # Store tracking data
+        tracking_data = {
+            'pose_trajectories': pose_trajectories,
+            'hand_trajectories': hand_trajectories,
+            'ball_trajectories': ball_trajectories
+        }
+        
+        # Save tracking data
+        tracking_file = os.path.join(self.tracked_data_dir, f"shot_{shot_index:03d}_tracking.json")
+        with open(tracking_file, 'w') as f:
+            json.dump(tracking_data, f, indent=2, default=str)
+        
         return output_path
+    
+    def _detect_ball(self, frame: np.ndarray) -> Optional[Tuple[int, int]]:
+        """
+        Detect basketball in the frame using color-based detection
+        
+        Args:
+            frame: Input frame
+            
+        Returns:
+            Ball position (x, y) or None if not detected
+        """
+        # Convert to HSV for better color detection
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        
+        # Define orange/brown color range for basketball
+        lower_orange = np.array([5, 50, 50])
+        upper_orange = np.array([25, 255, 255])
+        
+        # Create mask for orange/brown objects
+        mask = cv2.inRange(hsv, lower_orange, upper_orange)
+        
+        # Find contours
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        if contours:
+            # Find the largest contour (likely the ball)
+            largest_contour = max(contours, key=cv2.contourArea)
+            area = cv2.contourArea(largest_contour)
+            
+            # Filter by size (ball should be reasonably sized)
+            if area > 100:  # Minimum area threshold
+                # Get the center of the contour
+                M = cv2.moments(largest_contour)
+                if M["m00"] != 0:
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    return (cx, cy)
+        
+        return None
+    
+    def _draw_trajectory_trails(self, frame: np.ndarray, pose_trajectories: List[Dict], 
+                               hand_trajectories: List[Dict], ball_trajectories: List[Dict]):
+        """
+        Draw trajectory trails on the frame
+        
+        Args:
+            frame: Frame to draw on
+            pose_trajectories: Pose tracking data
+            hand_trajectories: Hand tracking data
+            ball_trajectories: Ball tracking data
+        """
+        # Draw pose trails (last 10 frames)
+        if len(pose_trajectories) > 1:
+            for i in range(max(0, len(pose_trajectories) - 10), len(pose_trajectories) - 1):
+                if i + 1 < len(pose_trajectories):
+                    # Draw wrist trails
+                    cv2.line(frame, pose_trajectories[i]['left_wrist'], 
+                            pose_trajectories[i + 1]['left_wrist'], (0, 255, 255), 2)
+                    cv2.line(frame, pose_trajectories[i]['right_wrist'], 
+                            pose_trajectories[i + 1]['right_wrist'], (255, 0, 255), 2)
+        
+        # Draw hand trails
+        if len(hand_trajectories) > 1:
+            for i in range(max(0, len(hand_trajectories) - 10), len(hand_trajectories) - 1):
+                if i + 1 < len(hand_trajectories):
+                    cv2.line(frame, hand_trajectories[i]['wrist'], 
+                            hand_trajectories[i + 1]['wrist'], (255, 255, 0), 2)
+        
+        # Draw ball trajectory
+        if len(ball_trajectories) > 1:
+            for i in range(max(0, len(ball_trajectories) - 15), len(ball_trajectories) - 1):
+                if i + 1 < len(ball_trajectories):
+                    cv2.line(frame, ball_trajectories[i]['position'], 
+                            ball_trajectories[i + 1]['position'], (0, 255, 0), 3)
     
     def _analyze_shot_video(self, shot_video_path: str, segment: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -319,7 +516,7 @@ class VideoStandardizer:
             output_path: Optional output path
         """
         if output_path is None:
-            output_path = "standardized_shots.json"
+            output_path = os.path.join(self.tracked_data_dir, f"analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
         
         # Convert numpy arrays to lists for JSON serialization
         serializable_data = []
@@ -340,3 +537,10 @@ class VideoStandardizer:
             json.dump(serializable_data, f, indent=2, default=str)
         
         print(f"Standardized data saved to: {output_path}")
+    
+    def cleanup(self):
+        """Clean up MediaPipe resources"""
+        if hasattr(self, 'pose'):
+            self.pose.close()
+        if hasattr(self, 'hands'):
+            self.hands.close()

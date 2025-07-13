@@ -48,12 +48,14 @@ app.add_middleware(
 # Configuration
 UPLOAD_FOLDER = 'uploads'
 RESULTS_FOLDER = 'results'
+TRACKED_DATA_FOLDER = 'tracked_data'
 MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
 ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'mkv', 'wmv', 'flv', 'webm'}
 
 # Ensure directories exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULTS_FOLDER, exist_ok=True)
+os.makedirs(TRACKED_DATA_FOLDER, exist_ok=True)
 
 # Pydantic models for API documentation
 class AnalysisResult(BaseModel):
@@ -266,6 +268,7 @@ async def api_status():
         "timestamp": datetime.now().isoformat(),
         "upload_folder": UPLOAD_FOLDER,
         "results_folder": RESULTS_FOLDER,
+        "tracked_data_folder": TRACKED_DATA_FOLDER,
         "max_file_size_mb": MAX_FILE_SIZE / (1024*1024),
         "allowed_extensions": list(ALLOWED_EXTENSIONS)
     }
