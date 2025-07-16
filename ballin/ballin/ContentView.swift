@@ -79,13 +79,8 @@ struct HomeView: View {
                 }
             }
             .padding(.horizontal)
+            .offset(y: -100)
             Spacer()
-            Spacer()
-            // Use most recent data to fill this out
-            Text("Last session was _ days ago.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.bottom, 24)
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView()
@@ -162,8 +157,6 @@ struct DatabaseView: View {
         Text("Under Construction n shit numba 2")
     }
 }
-
-
 
 class CameraManager: NSObject, ObservableObject {
     private let session = AVCaptureSession()
