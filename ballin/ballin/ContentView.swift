@@ -173,7 +173,9 @@ class CameraManager: NSObject, ObservableObject {
     
     private func configureSession() {
         session.beginConfiguration()
-        
+
+        session.sessionPreset = .hd1280x720  // 720p resolution
+
         guard let device = AVCaptureDevice.default(for: .video),
               let input = try? AVCaptureDeviceInput(device: device),
               session.canAddInput(input) else {
@@ -182,13 +184,21 @@ class CameraManager: NSObject, ObservableObject {
         }
         currentDevice = device
         session.addInput(input)
-        
+
+        // Set framerate to 30fps
+        try? device.lockForConfiguration()
+        device.activeVideoMinFrameDuration = CMTime(value: 1, timescale: 30)
+        device.activeVideoMaxFrameDuration = CMTime(value: 1, timescale: 30)
+        device.unlockForConfiguration()
+
+        // Add output (no audio)
         if session.canAddOutput(videoOutput) {
             session.addOutput(videoOutput)
         }
-        
+
         session.commitConfiguration()
     }
+
     
     func startSession() {
         if !session.isRunning {
