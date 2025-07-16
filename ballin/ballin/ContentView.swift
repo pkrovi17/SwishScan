@@ -256,11 +256,13 @@ struct CameraView: View {
 
     var body: some View {
         ZStack {
-//            CameraPreview(cameraManager: cameraManager)
-//                .ignoresSafeArea()
-            Color.black
+            Color.green
                 .ignoresSafeArea(edges: .all)
-
+            CameraPreview(cameraManager: cameraManager)
+                .frame(width: UIScreen.main.bounds.width,
+                           height: UIScreen.main.bounds.width * (16.0 / 9.0))
+                .clipped()
+                .ignoresSafeArea()
             VStack {
                 Text("Have the instructions go here.")
                     .foregroundStyle(.white)
@@ -280,7 +282,7 @@ struct CameraView: View {
                     }
                     Spacer()
                     Button(action: {
-//                        cameraManager.toggleRecording()
+                        cameraManager.toggleRecording()
                     }) {
                         Circle()
                             .fill(cameraManager.isRecording ? .gray : .red)
@@ -302,19 +304,19 @@ struct CameraView: View {
             }
         }
         .onAppear {
-//            AVCaptureDevice.requestAccess(for: .video) { granted in
-//                if granted {
-//                    cameraManager.startSession()
-//                }
-//            }
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                if granted {
+                    cameraManager.startSession()
+                }
+            }
         }
         .onDisappear {
-//            cameraManager.stopSession()
+            cameraManager.stopSession()
         }
     }
 }
 
 
 #Preview {
-    ContentView()
+    CameraView()
 }
