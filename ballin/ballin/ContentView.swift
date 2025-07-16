@@ -44,10 +44,12 @@ struct HomeView: View {
                     .font(.title)
                     .fontWeight(.medium)
                     .padding(.top, 50)
+                    .padding(.horizontal, 4)
                 Text("What should we work on today?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.top, 4)
+                    .padding(.horizontal, 4)
             }
             
             Spacer()
@@ -70,7 +72,7 @@ struct HomeView: View {
                         }
                         .frame(maxWidth: 120, minHeight: 140)
                         .padding()
-                        .background(Color(red: 0, green: 0, blue: 0.5))
+                        .background(Color("buttonBackground"))
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
                 }
@@ -103,7 +105,7 @@ struct CalendarView: View {
 
 
     var body: some View {
-        MultiDatePicker("Calendar", selection: $selectedDates)
+        MultiDatePicker("Calendar", selection: $selectedDates, in: ..<Date())
             .onAppear {
                 selectedDates = eventDates
                 previouslySelected = eventDates
@@ -112,21 +114,32 @@ struct CalendarView: View {
                     isInitializing = false
                 }
             }
-            .onChange(of: selectedDates) { oldValue, newValue in
+            .onChange(of: selectedDates.count) { oldCount, newCount in
                 guard !isInitializing else { return }
                 
-                let changed = newValue.symmetricDifference(oldValue)
-                if let tapped = changed.first, let date = Calendar.current.date(from: tapped) {
-                    activeDate = IdentifiableDate(date: date)
-
-                    // Let SwiftUI finish observing the change first
-                    DispatchQueue.main.async {
-                        selectedDates = oldValue
-                    }
+                print(oldCount, newCount)
+                
+                // Compare with the "canonical" state (eventDates)
+                let userAddedDates = selectedDates.subtracting(eventDates)
+                let userRemovedDates = eventDates.subtracting(selectedDates)
+                
+                var tappedDate: Date?
+                
+                if let addedComponents = userAddedDates.first {
+                    tappedDate = Calendar.current.date(from: addedComponents)
+                    print("User tried to select: \(String(describing: tappedDate))")
+                } else if let removedComponents = userRemovedDates.first {
+                    tappedDate = Calendar.current.date(from: removedComponents)
+                    print("User tried to deselect: \(String(describing: tappedDate))")
                 }
+                
+                if let date = tappedDate {
+                    activeDate = IdentifiableDate(date: date)
+                }
+                
+                // Reset to original
+                selectedDates = eventDates
             }
-
-
             .padding(.horizontal)
             .sheet(item: $activeDate) { wrapper in
                 let date = wrapper.date
@@ -135,7 +148,6 @@ struct CalendarView: View {
                 }
                 .presentationDetents([.medium, .large])
             }
-
     }
 }
 
