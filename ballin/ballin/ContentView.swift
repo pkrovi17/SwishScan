@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct ContentView: View {
     
@@ -162,52 +163,154 @@ struct DatabaseView: View {
     }
 }
 
+
+
+class CameraManager: NSObject, ObservableObject {
+    private let session = AVCaptureSession()
+    private var videoOutput = AVCaptureMovieFileOutput()
+    private var previewLayer: AVCaptureVideoPreviewLayer?
+    private var currentDevice: AVCaptureDevice?
+    
+    @Published var isRecording = false
+    
+    override init() {
+        super.init()
+        configureSession()
+    }
+    
+    private func configureSession() {
+        session.beginConfiguration()
+        
+        guard let device = AVCaptureDevice.default(for: .video),
+              let input = try? AVCaptureDeviceInput(device: device),
+              session.canAddInput(input) else {
+            print("Failed to set up input")
+            return
+        }
+        currentDevice = device
+        session.addInput(input)
+        
+        if session.canAddOutput(videoOutput) {
+            session.addOutput(videoOutput)
+        }
+        
+        session.commitConfiguration()
+    }
+    
+    func startSession() {
+        if !session.isRunning {
+            session.startRunning()
+        }
+    }
+    
+    func stopSession() {
+        if session.isRunning {
+            session.stopRunning()
+        }
+    }
+    
+    func getPreviewLayer() -> AVCaptureVideoPreviewLayer {
+        let layer = AVCaptureVideoPreviewLayer(session: session)
+        layer.videoGravity = .resizeAspectFill
+        previewLayer = layer
+        return layer
+    }
+    
+    func toggleRecording() {
+        if isRecording {
+            videoOutput.stopRecording()
+        } else {
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".mov")
+            videoOutput.startRecording(to: outputURL, recordingDelegate: self)
+        }
+        isRecording.toggle()
+    }
+}
+
+extension CameraManager: AVCaptureFileOutputRecordingDelegate {
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        print("Finished recording to: \(outputFileURL)")
+    }
+}
+
+struct CameraPreview: UIViewControllerRepresentable {
+    @ObservedObject var cameraManager: CameraManager
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        let controller = UIViewController()
+        let previewLayer = cameraManager.getPreviewLayer()
+        previewLayer.frame = UIScreen.main.bounds
+        controller.view.layer.addSublayer(previewLayer)
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
+
 struct CameraView: View {
     @Environment(\.dismiss) var dismiss
+    @StateObject var cameraManager = CameraManager()
 
     var body: some View {
         ZStack {
+//            CameraPreview(cameraManager: cameraManager)
+//                .ignoresSafeArea()
             Color.black
                 .ignoresSafeArea(edges: .all)
+
             VStack {
-                    Text("Have the instructions go here.")
+                Text("Have the instructions go here.")
                     .foregroundStyle(.white)
+                    .padding(.top, 50)
+
                 Spacer()
+
                 HStack {
                     Spacer()
                     Button(action: {
-                          // action to perform when the button is tapped
-                        }) {
-                            Image(systemName: "square.on.square")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 30)
-                                .foregroundColor(.white)
-                        }
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .resizable()
+                            .frame(width: 21, height: 21)
+                            .foregroundColor(.white)
+                    }
                     Spacer()
                     Button(action: {
-                        
-                    }, label: {
-                            Circle()
-                                .fill(Color.red)
-                                .frame(width: 70, height: 70)
-                    })
+//                        cameraManager.toggleRecording()
+                    }) {
+                        Circle()
+                            .fill(cameraManager.isRecording ? .gray : .red)
+                            .frame(width: 70, height: 70)
+                    }
                     Spacer()
-                    
                     Button(action: {
-                          dismiss()
-                        }) {
-                            Image(systemName: "xmark")
-                                .resizable()
-                                .frame(width: 22, height: 22)
-                                .foregroundColor(.white)
-                        }
+                        // Placeholder for a future action
+                    }) {
+                        Image(systemName: "square.on.square")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 30)
+                            .foregroundColor(.white)
+                    }
                     Spacer()
                 }
+                .padding(.bottom, 40)
             }
+        }
+        .onAppear {
+//            AVCaptureDevice.requestAccess(for: .video) { granted in
+//                if granted {
+//                    cameraManager.startSession()
+//                }
+//            }
+        }
+        .onDisappear {
+//            cameraManager.stopSession()
         }
     }
 }
+
 
 #Preview {
     ContentView()

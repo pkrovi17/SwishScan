@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3C87D7022E2726BB001702CF /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3C87D7012E2726B6001702CF /* info.plist */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		3C87D7012E2726B6001702CF /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = info.plist; sourceTree = "<group>"; };
 		3CD49E742E22FF4800DF29FF /* ballin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ballin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +37,7 @@
 		3CD49E6B2E22FF4800DF29FF = {
 			isa = PBXGroup;
 			children = (
+				3C87D7012E2726B6001702CF /* info.plist */,
 				3CD49E762E22FF4800DF29FF /* ballin */,
 				3CD49E752E22FF4800DF29FF /* Products */,
 			);
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C87D7022E2726BB001702CF /* info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
