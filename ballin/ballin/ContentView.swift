@@ -2,11 +2,12 @@ import SwiftUI
 import AVFoundation
 
 struct ContentView: View {
-    
-    
     var body: some View {
+        // Basic TabView setup
         TabView {
             HomeView()
+                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
                     Image(systemName: "house")
                         .resizable()
@@ -39,19 +40,18 @@ struct HomeView: View {
     @State private var showCamera = false
     
     var body: some View {
+        
         VStack {
             // Top settings and welcome
             VStack (alignment: .leading){
-                Text("Hi, [name].")
+                Text("Nice afternoon.")
                     .font(.title)
-                    .fontWeight(.medium)
-                    .padding(.top, 50)
-                    .padding(.horizontal, 4)
-                Text("What should we work on today?")
+                    .fontWeight(.regular)
+                    .padding(.top, 42)
+                Text("Want to get some practice in today?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.top, 4)
-                    .padding(.horizontal, 4)
+                    .padding(.top, -4)
             }
             
             Spacer()
@@ -79,7 +79,6 @@ struct HomeView: View {
                     }
                 }
             }
-            .padding(.horizontal)
             .offset(y: -100)
             Spacer()
         }
@@ -100,7 +99,6 @@ struct CalendarView: View {
     @State private var previouslySelected: Set<DateComponents> = []
     @State private var activeDate: IdentifiableDate? = nil
     @State private var isInitializing = true
-
 
     var body: some View {
         MultiDatePicker("Calendar", selection: $selectedDates, in: ..<Date())
@@ -301,13 +299,14 @@ struct CameraView: View {
                             .resizable()
                             .frame(width: 21, height: 21)
                             .foregroundColor(.white)
+                            .padding()
                     }
                     Spacer()
                     Button(action: {
                         cameraManager.toggleRecording()
                     }) {
-                        Circle()
-                            .fill(cameraManager.isRecording ? .gray : .red)
+                        RoundedRectangle(cornerRadius: cameraManager.isRecording ? 15 : 50)
+                            .fill(.red)
                             .frame(width: 70, height: 70)
                     }
                     Spacer()
@@ -319,6 +318,7 @@ struct CameraView: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 30)
                             .foregroundColor(.white)
+                            .padding()
                     }
                     Spacer()
                 }
