@@ -244,6 +244,20 @@ extension CameraManager: AVCaptureFileOutputRecordingDelegate {
 
 struct CameraPreview: UIViewControllerRepresentable {
     @ObservedObject var cameraManager: CameraManager
+    
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        let previewLayer = cameraManager.getPreviewLayer()
+        previewLayer.videoGravity = .resizeAspectFill
+        view.layer.addSublayer(previewLayer)
+        return view
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {
+        let screenWidth = UIScreen.main.bounds.width
+        let height = screenWidth * (16.0 / 9.0)
+        cameraManager.getPreviewLayer().frame = CGRect(x: 0, y: 0, width: screenWidth, height: height)
+    }
 
     func makeUIViewController(context: Context) -> UIViewController {
         let controller = UIViewController()
@@ -263,17 +277,18 @@ struct CameraView: View {
 
     var body: some View {
         ZStack {
-            Color.green
+            Color.black
                 .ignoresSafeArea(edges: .all)
             CameraPreview(cameraManager: cameraManager)
                 .frame(width: UIScreen.main.bounds.width,
                            height: UIScreen.main.bounds.width * (16.0 / 9.0))
                 .clipped()
                 .ignoresSafeArea()
+                .offset(y: 10)
             VStack {
                 Text("Have the instructions go here.")
                     .foregroundStyle(.white)
-                    .padding(.top, 50)
+                    .font(.caption)
 
                 Spacer()
 
