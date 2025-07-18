@@ -91,7 +91,7 @@ struct HomeView: View {
             }) {
                 VStack {
                     Text("99 Day Streak.")
-                        .foregroundColor(.green)
+                        .foregroundColor(Color("secondaryButtonText"))
                         .bold()
                 }
                 .frame(maxWidth: 282, minHeight: 32)
