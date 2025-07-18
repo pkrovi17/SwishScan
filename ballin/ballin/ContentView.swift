@@ -87,7 +87,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .offset(y: -175)
+            .offset(y: -185)
             Button(action: {
                 selectedTab = 1
             }) {
@@ -101,7 +101,7 @@ struct HomeView: View {
                 .background(Color("secondaryButtonBackground"))
                 .clipShape(RoundedRectangle(cornerRadius: 15))
             }
-            .offset(y: -171) // -150 + 4 for equal spacing
+            .offset(y: -181) // -150 + 4 for equal spacing
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView()
@@ -137,9 +137,16 @@ struct CalendarView: View {
     @State private var previouslySelected: Set<DateComponents> = []
     @State private var activeDate: IdentifiableDate? = nil
     @State private var isInitializing = true
+    
+    let dateRange: Range<Date> = {
+        let calendar = Calendar.current
+        let start = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1))!
+        let end = Calendar.current.startOfDay(for: Date())
+        return start..<calendar.date(byAdding: .day, value: 1, to: end)!
+    }()
 
     var body: some View {
-        MultiDatePicker("Calendar", selection: $selectedDates, in: ..<Date())
+        MultiDatePicker("Calendar", selection: $selectedDates, in: dateRange)
             .onAppear {
                 selectedDates = eventDates
                 previouslySelected = eventDates
@@ -178,7 +185,7 @@ struct CalendarView: View {
             .sheet(item: $activeDate) { wrapper in
                 let date = wrapper.date
                 VStack {
-                    Text("Workout on \(date.formatted(.dateTime.month().day().year()))")
+                    Text("You clicked: \(date.formatted(.dateTime.month().day().year()))")
                 }
                 .presentationDetents([.medium, .large])
             }
@@ -194,7 +201,7 @@ struct IdentifiableDate: Identifiable {
 
 struct DatabaseView: View {
     var body: some View {
-        Text("Under Construction n shit numba 2")
+        Text("Under Construction n shit")
     }
 }
 
