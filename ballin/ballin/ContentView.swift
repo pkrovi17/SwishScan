@@ -92,7 +92,7 @@ struct HomeView: View {
                 selectedTab = 1
             }) {
                 VStack {
-                    Text("99 Day Streak.")
+                    Text("99 Day Streak")
                         .foregroundColor(Color("secondaryButtonText"))
                         .bold()
                 }
@@ -413,6 +413,7 @@ struct CameraView: View {
                            height: UIScreen.main.bounds.width * (16.0 / 9.0))
                 .clipped()
                 .ignoresSafeArea()
+                .clipShape(RoundedRectangle(cornerRadius: 15))
                 .offset(y: 10)
             VStack {
                 Text("Have the instructions go here.")
