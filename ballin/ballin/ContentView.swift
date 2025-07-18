@@ -428,6 +428,7 @@ struct CameraView: View {
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                     .font(.caption)
+                    .bold()
                     .padding(.horizontal, 10)
                     .opacity(instructionsVisible ? 1 : 0)
                     .frame(maxWidth: 300, maxHeight: .infinity)
