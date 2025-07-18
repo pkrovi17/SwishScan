@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import PhotosUI
 
 struct ContentView: View {
     var body: some View {
@@ -269,9 +270,102 @@ struct CameraPreview: UIViewControllerRepresentable {
 }
 
 
+struct VideoPickerView: View {
+    @State private var showPicker = false
+    @State private var selectedVideoURL: URL?
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Button("Pick a Video") {
+                showPicker = true
+            }
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+
+            if let url = selectedVideoURL {
+                Text("Selected video: \(url.lastPathComponent)")
+                    .font(.caption)
+                    .padding()
+            }
+        }
+        .sheet(isPresented: $showPicker) {
+            VideoPicker(selectedVideoURL: $selectedVideoURL)
+        }
+    }
+}
+
+
+struct VideoPicker: UIViewControllerRepresentable {
+    @Binding var selectedVideoURL: URL?
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.filter = .videos
+        config.selectionLimit = 1
+
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: VideoPicker
+
+        init(_ parent: VideoPicker) {
+            self.parent = parent
+        }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            picker.dismiss(animated: true)
+
+            guard let itemProvider = results.first?.itemProvider,
+                  itemProvider.hasItemConformingToTypeIdentifier("public.movie") else { return }
+
+            itemProvider.loadFileRepresentation(forTypeIdentifier: "public.movie") { url, error in
+                guard let url = url else {
+                    print("Error loading video: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+
+                // Create a unique filename to avoid collisions
+                let fileName = UUID().uuidString + ".mov"
+                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+
+                do {
+                    // Remove if something with same name exists (super rare but safe)
+                    if FileManager.default.fileExists(atPath: tempURL.path) {
+                        try FileManager.default.removeItem(at: tempURL)
+                    }
+
+                    // Copy the video to your temp directory
+                    try FileManager.default.copyItem(at: url, to: tempURL)
+
+                    DispatchQueue.main.async {
+                        self.parent.selectedVideoURL = tempURL
+                    }
+                } catch {
+                    print("Error copying video file: \(error.localizedDescription)")
+                }
+            }
+
+        }
+    }
+}
+
+
 struct CameraView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var cameraManager = CameraManager()
+    @State private var showPicker = false
+    @State private var selectedVideoURL: URL?
 
     var body: some View {
         ZStack {
@@ -293,11 +387,12 @@ struct CameraView: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        dismiss()
+                        showPicker = true
                     }) {
-                        Image(systemName: "xmark")
+                        Image(systemName: "square.on.square")
                             .resizable()
-                            .frame(width: 21, height: 21)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 27)
                             .foregroundColor(.white)
                             .padding()
                     }
@@ -305,18 +400,17 @@ struct CameraView: View {
                     Button(action: {
                         cameraManager.toggleRecording()
                     }) {
-                        RoundedRectangle(cornerRadius: cameraManager.isRecording ? 15 : 50)
+                        RoundedRectangle(cornerRadius: cameraManager.isRecording ? 10 : 50)
                             .fill(.red)
                             .frame(width: 70, height: 70)
                     }
                     Spacer()
                     Button(action: {
-                        // Placeholder for a future action
+                        dismiss()
                     }) {
-                        Image(systemName: "square.on.square")
+                        Image(systemName: "xmark")
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 30)
+                            .frame(width: 21, height: 21)
                             .foregroundColor(.white)
                             .padding()
                     }
@@ -334,6 +428,9 @@ struct CameraView: View {
         }
         .onDisappear {
             cameraManager.stopSession()
+        }
+        .sheet(isPresented: $showPicker) {
+            VideoPicker(selectedVideoURL: $selectedVideoURL)
         }
     }
 }
