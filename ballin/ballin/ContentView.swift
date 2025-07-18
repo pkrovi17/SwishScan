@@ -45,12 +45,14 @@ struct ContentView: View {
 struct HomeView: View {
     @Binding var selectedTab: Int
     @State private var showCamera = false
+    @State private var greetingAdjective: String?
+    @State private var greetingTime = "night"
     
     var body: some View {
         VStack {
             // Top settings and welcome
             VStack (alignment: .leading){
-                Text("Nice afternoon.")
+                Text("\(greetingAdjective ?? "Good") \(greetingTime).")
                     .font(.title)
                     .fontWeight(.regular)
                     .padding(.top, 42)
@@ -103,6 +105,23 @@ struct HomeView: View {
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView()
+        }
+        .onAppear {
+            // Determining the greeting by seeing the time.
+            let hour = Calendar.current.component(.hour, from: Date())
+            if hour >= 6 && hour < 12 {
+                greetingTime = "morning"
+            } else if hour >= 12 && hour < 17 {
+                greetingTime = "afternoon"
+            } else if hour >= 17 && hour < 21 {
+                greetingTime = "evening"
+            } else {
+                greetingTime = "night"
+            }
+            
+            // Get random adjective
+            let items = ["Nice", "Good", "Beautiful"]
+            greetingAdjective = items.randomElement()
         }
     }
 }
