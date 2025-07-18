@@ -12,28 +12,19 @@ struct ContentView: View {
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
-                    Image(systemName: "house")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 30)
+                    Image(systemName: selectedTab == 0 ? "house.fill" : "house")
                     Text("Home")
                 }
                 .tag(0)
             CalendarView()
                 .tabItem {
-                    Image(systemName: "clock")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 30)
+                    Image(systemName: selectedTab == 1 ? "clock.fill" : "clock")
                     Text("Archive")
                 }
                 .tag(1)
             DatabaseView()
                 .tabItem {
-                    Image(systemName: "person")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 30)
+                    Image(systemName: selectedTab == 2 ? "person.fill" : "person")
                     Text("Database")
                 }
                 .tag(2)
@@ -45,6 +36,7 @@ struct ContentView: View {
 struct HomeView: View {
     @Binding var selectedTab: Int
     @State private var showCamera = false
+    @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
     @State private var greetingTime = "night"
     
@@ -68,6 +60,11 @@ struct HomeView: View {
             HStack(spacing: 12) {
                 ForEach(["Accuracy", "Form"], id: \.self) { title in
                     Button(action: {
+                        if title == "Accuracy" {
+                            isAccuracyTest = true
+                        } else {
+                            isAccuracyTest = false
+                        }
                         showCamera = true
                     }) {
                         VStack {
@@ -87,7 +84,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .offset(y: -185)
+            .offset(y: -160)
             Button(action: {
                 selectedTab = 1
             }) {
@@ -96,15 +93,15 @@ struct HomeView: View {
                         .foregroundColor(Color("secondaryButtonText"))
                         .bold()
                 }
-                .frame(maxWidth: 282, minHeight: 32)
+                .frame(maxWidth: 282, minHeight: 64)
                 .padding()
                 .background(Color("secondaryButtonBackground"))
                 .clipShape(RoundedRectangle(cornerRadius: 15))
             }
-            .offset(y: -181) // -150 + 4 for equal spacing
+            .offset(y: -156) // -150 + 4 for equal spacing
         }
         .fullScreenCover(isPresented: $showCamera) {
-            CameraView()
+            CameraView(isAccuracyTest: $isAccuracyTest)
         }
         .onAppear {
             // Determining the greeting by seeing the time.
@@ -405,11 +402,15 @@ struct VideoPicker: UIViewControllerRepresentable {
 }
 
 
+
 struct CameraView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var cameraManager = CameraManager()
     @State private var showPicker = false
     @State private var selectedVideoURL: URL?
+    @Binding var isAccuracyTest: Bool
+    @State private var instructions: String?
+    @State private var instructionsVisible = true
 
     var body: some View {
         ZStack {
@@ -423,9 +424,19 @@ struct CameraView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 15))
                 .offset(y: 10)
             VStack {
-                Text("Have the instructions go here.")
+                Text("\(instructions ?? "StupidScan™")")
                     .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
                     .font(.caption)
+                    .padding(.horizontal, 10)
+                    .opacity(instructionsVisible ? 1 : 0)
+                    .frame(maxWidth: 300, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            instructionsVisible.toggle()
+                        }
+                    }
 
                 Spacer()
 
@@ -443,6 +454,7 @@ struct CameraView: View {
                     }
                     Spacer()
                     Button(action: {
+                        instructionsVisible = false
                         cameraManager.toggleRecording()
                     }) {
                         RoundedRectangle(cornerRadius: cameraManager.isRecording ? 10 : 50)
@@ -470,6 +482,12 @@ struct CameraView: View {
                     cameraManager.startSession()
                 }
             }
+            
+            if isAccuracyTest {
+                instructions = "Show the entire half-court and hoop in frame. Shoot from different spots on the court. Take 10-15 shots."
+            } else {
+                instructions = "Keep all of your arms in frame when shooting. The hoop doesn’t need to be shown. Take 5 shots."
+            }
         }
         .onDisappear {
             cameraManager.stopSession()
@@ -481,5 +499,5 @@ struct CameraView: View {
 }
 
 #Preview {
-    CameraView()
+    ContentView()
 }
