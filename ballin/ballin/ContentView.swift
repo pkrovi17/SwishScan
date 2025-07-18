@@ -3,10 +3,12 @@ import AVFoundation
 import PhotosUI
 
 struct ContentView: View {
+    @State private var selectedTab = 0
+    
     var body: some View {
         // Basic TabView setup
-        TabView {
-            HomeView()
+        TabView(selection: $selectedTab) {
+            HomeView(selectedTab: $selectedTab)
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
@@ -16,6 +18,7 @@ struct ContentView: View {
                         .frame(height: 30)
                     Text("Home")
                 }
+                .tag(0)
             CalendarView()
                 .tabItem {
                     Image(systemName: "clock")
@@ -24,6 +27,7 @@ struct ContentView: View {
                         .frame(height: 30)
                     Text("Archive")
                 }
+                .tag(1)
             DatabaseView()
                 .tabItem {
                     Image(systemName: "person")
@@ -32,16 +36,17 @@ struct ContentView: View {
                         .frame(height: 30)
                     Text("Database")
                 }
+                .tag(2)
         }
     }
 }
 
 
 struct HomeView: View {
+    @Binding var selectedTab: Int
     @State private var showCamera = false
     
     var body: some View {
-        
         VStack {
             // Top settings and welcome
             VStack (alignment: .leading){
@@ -80,8 +85,21 @@ struct HomeView: View {
                     }
                 }
             }
-            .offset(y: -100)
-            Spacer()
+            .offset(y: -175)
+            Button(action: {
+                selectedTab = 1
+            }) {
+                VStack {
+                    Text("99 Day Streak.")
+                        .foregroundColor(.green)
+                        .bold()
+                }
+                .frame(maxWidth: 282, minHeight: 32)
+                .padding()
+                .background(Color("secondaryButtonBackground"))
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+            }
+            .offset(y: -171) // -150 + 4 for equal spacing
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView()
