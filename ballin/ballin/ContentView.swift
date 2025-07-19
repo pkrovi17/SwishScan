@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import PhotosUI
+import Photos
 
 struct ContentView: View {
     @State private var selectedTab = 0
@@ -267,7 +268,7 @@ class CameraManager: NSObject, ObservableObject {
         if isRecording {
             videoOutput.stopRecording()
         } else {
-            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".mov")
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent("raw_video.mov")
             videoOutput.startRecording(to: outputURL, recordingDelegate: self)
         }
         isRecording.toggle()
@@ -278,6 +279,23 @@ class CameraManager: NSObject, ObservableObject {
 extension CameraManager: AVCaptureFileOutputRecordingDelegate {
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         print("Finished recording to: \(outputFileURL)")
+
+        PHPhotoLibrary.requestAuthorization { status in
+            guard status == .authorized || status == .limited else {
+                print("No permission to save to photo library!")
+                return
+            }
+
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: outputFileURL)
+            }) { success, error in
+                if let error = error {
+                    print("Error saving video to photo library: \(error)")
+                } else {
+                    print("Saved video to photo library!")
+                }
+            }
+        }
     }
 }
 
@@ -377,8 +395,7 @@ struct VideoPicker: UIViewControllerRepresentable {
                 }
 
                 // Create a unique filename to avoid collisions
-                let fileName = UUID().uuidString + ".mov"
-                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("raw_video.mov")
 
                 do {
                     // Remove if something with same name exists (super rare but safe)
@@ -396,7 +413,6 @@ struct VideoPicker: UIViewControllerRepresentable {
                     print("Error copying video file: \(error.localizedDescription)")
                 }
             }
-
         }
     }
 }

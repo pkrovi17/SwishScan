@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3C2236A32E2820B500396FE0 /* Exceptions for "ballin" folder in "ballin" target */ = {
+		3C0A587F2E2B718A00749FF5 /* Exceptions for "ballin" folder in "ballin" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,7 +24,7 @@
 		3CD49E762E22FF4800DF29FF /* ballin */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3C2236A32E2820B500396FE0 /* Exceptions for "ballin" folder in "ballin" target */,
+				3C0A587F2E2B718A00749FF5 /* Exceptions for "ballin" folder in "ballin" target */,
 			);
 			path = ballin;
 			sourceTree = "<group>";
@@ -274,6 +274,8 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera to analyze your skills.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your mic for audio?";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs permission to save videos to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs permission to save videos to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -307,6 +309,8 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera to analyze your skills.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your mic for audio?";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs permission to save videos to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs permission to save videos to your photo library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
