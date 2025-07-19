@@ -37,6 +37,7 @@ struct ContentView: View {
 struct HomeView: View {
     @Binding var selectedTab: Int
     @State private var showCamera = false
+    @State private var showResults = false
     @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
     @State private var greetingTime = "night"
@@ -102,7 +103,7 @@ struct HomeView: View {
             .offset(y: -156) // -150 + 4 for equal spacing
         }
         .fullScreenCover(isPresented: $showCamera) {
-            CameraView(isAccuracyTest: $isAccuracyTest)
+            CameraView(showResults: $showResults, isAccuracyTest: $isAccuracyTest)
         }
         .onAppear {
             // Determining the greeting by seeing the time.
@@ -120,6 +121,9 @@ struct HomeView: View {
             // Get random adjective
             let items = ["Nice", "Good", "Beautiful"]
             greetingAdjective = items.randomElement()
+        }
+        .sheet(isPresented: $showResults) {
+            Text("Analyzing Data...")
         }
     }
 }
@@ -140,7 +144,7 @@ struct CalendarView: View {
         let calendar = Calendar.current
         let start = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1))!
         let end = Calendar.current.startOfDay(for: Date())
-        return start..<calendar.date(byAdding: .day, value: 1, to: end)!
+        return start..<calendar.date(byAdding: .day, value: 0, to: end)!
     }()
 
     var body: some View {
@@ -185,7 +189,7 @@ struct CalendarView: View {
                 VStack {
                     Text("You clicked: \(date.formatted(.dateTime.month().day().year()))")
                 }
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.large])
             }
     }
 }
@@ -211,6 +215,8 @@ class CameraManager: NSObject, ObservableObject {
     private var currentDevice: AVCaptureDevice?
     
     @Published var isRecording = false
+    
+    var recordingType: String = "raw"
     
     override init() {
         super.init()
@@ -271,7 +277,7 @@ class CameraManager: NSObject, ObservableObject {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
             let timestamp = formatter.string(from: Date())
-            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent("raw_\(timestamp).mov")
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(recordingType)_\(timestamp).mov")
             videoOutput.startRecording(to: outputURL, recordingDelegate: self)
         }
         isRecording.toggle()
@@ -361,6 +367,7 @@ struct VideoPickerView: View {
 
 struct VideoPicker: UIViewControllerRepresentable {
     @Binding var selectedVideoURL: URL?
+    var recordingType: String = "raw"
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -401,7 +408,8 @@ struct VideoPicker: UIViewControllerRepresentable {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
                 let timestamp = formatter.string(from: Date())
-                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("raw_\(timestamp).mov")
+                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(self.parent.recordingType)_\(timestamp).mov")
+
 
 
                 do {
@@ -431,6 +439,7 @@ struct CameraView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var cameraManager = CameraManager()
     @State private var showPicker = false
+    @Binding var showResults: Bool
     @State private var selectedVideoURL: URL?
     @Binding var isAccuracyTest: Bool
     @State private var instructions: String?
@@ -480,7 +489,12 @@ struct CameraView: View {
                     Spacer()
                     Button(action: {
                         instructionsVisible = false
+                        cameraManager.recordingType = isAccuracyTest ? "accuracy" : "form"
                         cameraManager.toggleRecording()
+                        if !cameraManager.isRecording {
+                            dismiss()
+                            showResults = true
+                        }
                     }) {
                         RoundedRectangle(cornerRadius: cameraManager.isRecording ? 10 : 50)
                             .fill(.red)
@@ -518,7 +532,10 @@ struct CameraView: View {
             cameraManager.stopSession()
         }
         .sheet(isPresented: $showPicker) {
-            VideoPicker(selectedVideoURL: $selectedVideoURL)
+            VideoPicker(
+                    selectedVideoURL: $selectedVideoURL,
+                    recordingType: isAccuracyTest ? "accuracy" : "form"
+                )
         }
     }
 }
