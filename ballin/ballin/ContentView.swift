@@ -268,7 +268,10 @@ class CameraManager: NSObject, ObservableObject {
         if isRecording {
             videoOutput.stopRecording()
         } else {
-            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent("raw_video.mov")
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+            let timestamp = formatter.string(from: Date())
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent("raw_\(timestamp).mov")
             videoOutput.startRecording(to: outputURL, recordingDelegate: self)
         }
         isRecording.toggle()
@@ -395,7 +398,11 @@ struct VideoPicker: UIViewControllerRepresentable {
                 }
 
                 // Create a unique filename to avoid collisions
-                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("raw_video.mov")
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+                let timestamp = formatter.string(from: Date())
+                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("raw_\(timestamp).mov")
+
 
                 do {
                     // Remove if something with same name exists (super rare but safe)
@@ -409,6 +416,7 @@ struct VideoPicker: UIViewControllerRepresentable {
                     DispatchQueue.main.async {
                         self.parent.selectedVideoURL = tempURL
                     }
+                    print("Copied file to: \(tempURL.path)")
                 } catch {
                     print("Error copying video file: \(error.localizedDescription)")
                 }
