@@ -38,75 +38,113 @@ struct HomeView: View {
     @Binding var selectedTab: Int
     @State private var showCamera = false
     @State private var showResults = false
+    @State private var dragOffset: CGFloat = 0
     @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
     @State private var greetingTime = "night"
     
     var body: some View {
-        VStack {
-            // Top settings and welcome
-            VStack (alignment: .leading){
-                Text("\(greetingAdjective ?? "Good") \(greetingTime).")
-                    .font(.title)
-                    .fontWeight(.regular)
-                    .padding(.top, 42)
-                Text("Want to get some practice in today?")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding(.top, -4)
-            }
-            
-            Spacer()
-            
-            // Actual buttons
-            HStack(spacing: 12) {
-                ForEach(["Accuracy", "Form"], id: \.self) { title in
-                    Button(action: {
-                        if title == "Accuracy" {
-                            isAccuracyTest = true
-                        } else {
-                            isAccuracyTest = false
+        ZStack {
+            VStack {
+                // Top settings and welcome
+                VStack (alignment: .leading){
+                    Text("\(greetingAdjective ?? "Good") \(greetingTime).")
+                        .font(.title)
+                        .fontWeight(.regular)
+                        .padding(.top, 42)
+                    Text("Want to get some practice in today?")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.top, -4)
+                }
+                Spacer()
+                // Actual buttons
+                HStack(spacing: 12) {
+                    ForEach(["Accuracy", "Form"], id: \.self) { title in
+                        Button(action: {
+                            if title == "Accuracy" {
+                                isAccuracyTest = true
+                            } else {
+                                isAccuracyTest = false
+                            }
+                            showCamera = true
+                        }) {
+                            VStack {
+                                Image(systemName: title == "Accuracy" ? "scope" : "scribble")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(height: 64)
+                                    .padding(.horizontal)
+                                Text(title)
+                                    .bold()
+                                    .padding(.top, 8)
+                            }
+                            .frame(maxWidth: 120, minHeight: 140)
+                            .padding()
+                            .background(Color("buttonBackground"))
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
                         }
-                        showCamera = true
-                    }) {
-                        VStack {
-                            Image(systemName: title == "Accuracy" ? "scope" : "scribble")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(height: 64)
-                                .padding(.horizontal)
-                            Text(title)
-                                .bold()
-                                .padding(.top, 8)
-                        }
-                        .frame(maxWidth: 120, minHeight: 140)
-                        .padding()
-                        .background(Color("buttonBackground"))
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
                 }
-            }
-            .offset(y: -160)
-            Button(action: {
-                selectedTab = 1
-            }) {
-                VStack {
-                    Text("99 Day Streak")
-                        .foregroundColor(Color("secondaryButtonText"))
-                        .bold()
+                .offset(y: -160)
+                Button(action: {
+                    selectedTab = 1
+                }) {
+                    VStack {
+                        Text("99 Day Streak")
+                            .foregroundColor(Color("secondaryButtonText"))
+                            .bold()
+                    }
+                    .frame(maxWidth: 282, minHeight: 64)
+                    .padding()
+                    .background(Color("secondaryButtonBackground"))
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
-                .frame(maxWidth: 282, minHeight: 64)
-                .padding()
-                .background(Color("secondaryButtonBackground"))
-                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .offset(y: -156) // -150 + 4 for equal spacing
             }
-            .offset(y: -156) // -150 + 4 for equal spacing
+            if showResults {
+                ResultsView(day: Date()) // fill in with real date
+                    .frame(maxWidth: .infinity, minHeight: 600)
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(15)
+                    .offset(y: dragOffset)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { value in
+                                // Only drag down
+                                if value.translation.height > 0 {
+                                    dragOffset = value.translation.height
+                                }
+                            }
+                            .onEnded { value in
+                                if value.translation.height > 100 {
+                                    // Slide it off-screen first, then dismiss
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        dragOffset = UIScreen.main.bounds.height
+                                    }
+
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        showResults = false
+                                        dragOffset = 0 // reset for next time
+                                    }
+                                } else {
+                                    // Snap back if not enough
+                                    withAnimation {
+                                        dragOffset = 0
+                                    }
+                                }
+                            }
+                    )
+                    .transition(.move(edge: .bottom))
+                    .animation(.easeInOut, value: showResults)
+            }
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView(showResults: $showResults, isAccuracyTest: $isAccuracyTest)
         }
         .onAppear {
-            // Determining the greeting by seeing the time.
+            // Determining the greeting by seeing the time
             let hour = Calendar.current.component(.hour, from: Date())
             if hour >= 6 && hour < 12 {
                 greetingTime = "morning"
@@ -121,9 +159,6 @@ struct HomeView: View {
             // Get random adjective
             let items = ["Nice", "Good", "Beautiful"]
             greetingAdjective = items.randomElement()
-        }
-        .sheet(isPresented: $showResults) {
-            Text("Analyzing Data...")
         }
     }
 }
@@ -537,6 +572,38 @@ struct CameraView: View {
                     recordingType: isAccuracyTest ? "accuracy" : "form"
                 )
         }
+        .onChange(of: selectedVideoURL) { oldValue, newValue in
+            if oldValue == nil && newValue != nil {
+                dismiss()
+                showResults = true
+            }
+        }
+    }
+}
+
+struct ResultsView: View {
+    @State var day: Date
+    @State private var hasAccuracy = false
+    @State private var hasForm = false
+    
+    var body: some View {
+        if !hasAccuracy && !hasForm {
+            Text("No data on this day.")
+        } else {
+            if hasAccuracy {
+                Text("Accuracy data will appear here.")
+            }
+            if hasForm {
+                Text("Form data will appear here.")
+            }
+            Text("You are most similar to ___.")
+        }
+    }
+    
+    func initialize() {
+        // in documents,
+        // if directory doesn't exist, exit
+        // check if accuracy_ or form_ exist
     }
 }
 
