@@ -543,6 +543,8 @@ struct CameraView: View {
     @Binding var isAccuracyTest: Bool
     @State private var instructions: String?
     @State private var instructionsVisible = true
+    @State private var timer: Timer?
+    @State private var elapsedTime: Double = 0.0
 
     var body: some View {
         ZStack {
@@ -556,6 +558,10 @@ struct CameraView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 15))
                 .offset(y: 10)
             VStack {
+                Text(formattedTime)
+                    .font(.system(size: 20, weight: .semibold, design: .monospaced))
+                    .monospacedDigit()
+                    .foregroundColor(.white)
                 Text("\(instructions ?? "StupidScan™")")
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -575,6 +581,7 @@ struct CameraView: View {
 
                 HStack {
                     Spacer()
+                    // Attach photos
                     Button(action: {
                         showPicker = true
                     }) {
@@ -586,13 +593,17 @@ struct CameraView: View {
                             .padding()
                     }
                     Spacer()
+                    // Record button
                     Button(action: {
                         instructionsVisible = false
                         cameraManager.recordingType = isAccuracyTest ? "accuracy" : "form"
                         cameraManager.toggleRecording()
                         if !cameraManager.isRecording {
                             dismiss()
+                            stopTimer()
                             showResults = true
+                        } else {
+                            startTimer()
                         }
                     }) {
                         RoundedRectangle(cornerRadius: cameraManager.isRecording ? 10 : 50)
@@ -600,6 +611,7 @@ struct CameraView: View {
                             .frame(width: 70, height: 70)
                     }
                     Spacer()
+                    // Close camera
                     Button(action: {
                         dismiss()
                     }) {
@@ -642,6 +654,24 @@ struct CameraView: View {
                 showResults = true
             }
         }
+    }
+    var formattedTime: String {
+            let totalHundredths = Int(elapsedTime * 100)
+            let minutes = totalHundredths / 6000
+            let seconds = (totalHundredths % 6000) / 100
+            let hundredths = totalHundredths % 100
+            return String(format: "%02d:%02d:%02d", minutes, seconds, hundredths)
+        }
+
+    func startTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { _ in
+            elapsedTime += 0.01
+        }
+    }
+
+    func stopTimer() {
+        timer?.invalidate()
+        timer = nil
     }
 }
 
