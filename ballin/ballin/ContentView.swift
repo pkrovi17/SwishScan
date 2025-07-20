@@ -3,30 +3,32 @@ import AVFoundation
 import PhotosUI
 import Photos
 
+
 struct ContentView: View {
+    @AppStorage("isDarkMode") var isDarkMode = false
     @State private var selectedTab = 0
     
     var body: some View {
         // Basic TabView setup
         TabView(selection: $selectedTab) {
-            HomeView(selectedTab: $selectedTab)
+            HomeView(isDarkMode: $isDarkMode, selectedTab: $selectedTab)
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
-                    Image(systemName: selectedTab == 0 ? "house.fill" : "house")
+                    Image(systemName: "house.fill")
                         .padding(.top, 30)
                     Text("Home")
                 }
                 .tag(0)
             CalendarView()
                 .tabItem {
-                    Image(systemName: selectedTab == 1 ? "clock.fill" : "clock")
+                    Image(systemName: "clock.fill")
                     Text("Archive")
                 }
                 .tag(1)
             DatabaseView()
                 .tabItem {
-                    Image(systemName: selectedTab == 2 ? "person.fill" : "person")
+                    Image(systemName: "person.fill")
                     Text("Database")
                 }
                 .tag(2)
@@ -34,11 +36,13 @@ struct ContentView: View {
             .onAppear() {
                 UITabBar.appearance().backgroundColor = UIColor.systemBackground
         }
+            .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 }
 
 
 struct HomeView: View {
+    @Binding var isDarkMode: Bool
     @Binding var selectedTab: Int
     @State private var showCamera = false
     @State private var showResults = false
@@ -63,7 +67,7 @@ struct HomeView: View {
                         .padding(.top, -4)
                 }
                 Spacer()
-                // Actual buttons
+                // Accuracy and Form buttons
                 HStack(spacing: 12) {
                     ForEach(["Accuracy", "Form"], id: \.self) { title in
                         Button(action: {
@@ -91,7 +95,8 @@ struct HomeView: View {
                         }
                     }
                 }
-                .offset(y: -160)
+                .offset(y: -100)
+                
                 Button(action: {
                     selectedTab = 1
                 }) {
@@ -100,12 +105,49 @@ struct HomeView: View {
                             .foregroundColor(Color("secondaryButtonText"))
                             .bold()
                     }
-                    .frame(maxWidth: 282, minHeight: 64)
+                    .frame(maxWidth: 282, maxHeight: 36)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
                     .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
-                .offset(y: -156) // -150 + 4 for equal spacing
+                .offset(y: -96) // -100 + 4 for equal spacing
+                
+                // Settings and dark mode buttons
+                HStack (spacing: 12) {
+                    Button(action: {
+                        // find something for this
+                    }) {
+                        VStack {
+                            Image(systemName: "gearshape.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(Color("secondaryButtonText"))
+                                .frame(height: 24)
+                        }
+                        .frame(maxWidth: 120, maxHeight: 36)
+                        .padding()
+                        .background(Color("secondaryButtonBackground"))
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                    }
+                    .offset(y: -92) // -100 + 8 for equal spacing
+                    
+                    Button(action: {
+                        isDarkMode.toggle()
+                    }) {
+                        VStack {
+                            Image(systemName: isDarkMode ? "sun.max.fill" : "moon.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(Color("secondaryButtonText"))
+                                .frame(height: 24)
+                        }
+                        .frame(maxWidth: 120, maxHeight: 36)
+                        .padding()
+                        .background(Color("secondaryButtonBackground"))
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                    }
+                    .offset(y: -92) // -100 + 8 for equal spacing
+                }
             }
             
             if showResults {
@@ -164,6 +206,7 @@ struct HomeView: View {
         }
         .fullScreenCover(isPresented: $showCamera) {
             CameraView(showResults: $showResults, isAccuracyTest: $isAccuracyTest)
+                .preferredColorScheme(.dark)
         }
         .onAppear {
             // Determining the greeting by seeing the time
@@ -491,7 +534,6 @@ struct VideoPicker: UIViewControllerRepresentable {
 }
 
 
-
 struct CameraView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var cameraManager = CameraManager()
@@ -603,6 +645,7 @@ struct CameraView: View {
     }
 }
 
+
 struct ResultsView: View {
     @State var day: Date
     @State private var hasAccuracy = false
@@ -628,6 +671,7 @@ struct ResultsView: View {
         // check if accuracy_ or form_ exist
     }
 }
+
 
 #Preview {
     ContentView()
