@@ -14,6 +14,7 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
                     Image(systemName: selectedTab == 0 ? "house.fill" : "house")
+                        .padding(.top, 30)
                     Text("Home")
                 }
                 .tag(0)
@@ -30,6 +31,9 @@ struct ContentView: View {
                 }
                 .tag(2)
         }
+            .onAppear() {
+                UITabBar.appearance().backgroundColor = UIColor.systemBackground
+        }
     }
 }
 
@@ -39,6 +43,7 @@ struct HomeView: View {
     @State private var showCamera = false
     @State private var showResults = false
     @State private var dragOffset: CGFloat = 0
+    @State private var isDismissing = false
     @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
     @State private var greetingTime = "night"
@@ -102,34 +107,40 @@ struct HomeView: View {
                 }
                 .offset(y: -156) // -150 + 4 for equal spacing
             }
+            
             if showResults {
                 ResultsView(day: Date()) // fill in with real date
                     .frame(maxWidth: .infinity, minHeight: 600)
                     .padding()
-                    .background(.ultraThinMaterial)
+                    .background(.thickMaterial)
                     .cornerRadius(15)
                     .offset(y: dragOffset)
                     .gesture(
                         DragGesture()
                             .onChanged { value in
-                                // Only drag down
                                 if value.translation.height > 0 {
                                     dragOffset = value.translation.height
                                 }
                             }
                             .onEnded { value in
-                                if value.translation.height > 100 {
-                                    // Slide it off-screen first, then dismiss
-                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                let dragDistance = value.translation.height
+                                let predictedDistance = value.predictedEndTranslation.height
+                                let dragVelocity = predictedDistance - dragDistance
+
+                                let shouldDismissByDistance = dragDistance > 150
+                                let shouldDismissByVelocity = dragVelocity > 150
+
+                                if shouldDismissByDistance || shouldDismissByVelocity {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
                                         dragOffset = UIScreen.main.bounds.height
+                                        isDismissing = true
                                     }
 
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                                         showResults = false
-                                        dragOffset = 0 // reset for next time
+                                        dragOffset = 0
                                     }
                                 } else {
-                                    // Snap back if not enough
                                     withAnimation {
                                         dragOffset = 0
                                     }
@@ -138,6 +149,17 @@ struct HomeView: View {
                     )
                     .transition(.move(edge: .bottom))
                     .animation(.easeInOut, value: showResults)
+                    .onDisappear {
+                        dragOffset = 0
+                        isDismissing = false
+                    }
+            }
+        }
+        .onChange(of: isDismissing) { oldValue, newValue in
+            if oldValue == false && newValue == true {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    showResults = false
+                }
             }
         }
         .fullScreenCover(isPresented: $showCamera) {
