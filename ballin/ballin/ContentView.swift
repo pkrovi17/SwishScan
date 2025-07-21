@@ -4,7 +4,7 @@ import PhotosUI
 import Photos
 
 
-struct ContentView: View {
+struct MainView: View {
     @AppStorage("isDarkMode") var isDarkMode = false
     @State private var selectedTab = 0
     
@@ -225,72 +225,6 @@ struct HomeView: View {
             let items = ["Nice", "Good", "Beautiful"]
             greetingAdjective = items.randomElement()
         }
-    }
-}
-
-
-struct CalendarView: View {
-    let eventDates: Set<DateComponents> = [
-        // FILL THIS IN WITH ACTUAL DATE DATA
-        DateComponents(year: 2025, month: 7, day: 10),
-    ]
-
-    @State private var selectedDates: Set<DateComponents> = []
-    @State private var previouslySelected: Set<DateComponents> = []
-    @State private var activeDate: IdentifiableDate? = nil
-    @State private var isInitializing = true
-    
-    let dateRange: Range<Date> = {
-        let calendar = Calendar.current
-        let start = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1))!
-        let end = Calendar.current.startOfDay(for: Date())
-        return start..<calendar.date(byAdding: .day, value: 0, to: end)!
-    }()
-
-    var body: some View {
-        MultiDatePicker("Calendar", selection: $selectedDates, in: dateRange)
-            .onAppear {
-                selectedDates = eventDates
-                previouslySelected = eventDates
-                
-                DispatchQueue.main.async {
-                    isInitializing = false
-                }
-            }
-            .onChange(of: selectedDates.count) { oldCount, newCount in
-                guard !isInitializing else { return }
-                
-                print(oldCount, newCount)
-                
-                // Compare with the "canonical" state (eventDates)
-                let userAddedDates = selectedDates.subtracting(eventDates)
-                let userRemovedDates = eventDates.subtracting(selectedDates)
-                
-                var tappedDate: Date?
-                
-                if let addedComponents = userAddedDates.first {
-                    tappedDate = Calendar.current.date(from: addedComponents)
-                    print("User tried to select: \(String(describing: tappedDate))")
-                } else if let removedComponents = userRemovedDates.first {
-                    tappedDate = Calendar.current.date(from: removedComponents)
-                    print("User tried to deselect: \(String(describing: tappedDate))")
-                }
-                
-                if let date = tappedDate {
-                    activeDate = IdentifiableDate(date: date)
-                }
-                
-                // Reset to original
-                selectedDates = eventDates
-            }
-            .padding(.horizontal)
-            .sheet(item: $activeDate) { wrapper in
-                let date = wrapper.date
-                VStack {
-                    Text("You clicked: \(date.formatted(.dateTime.month().day().year()))")
-                }
-                .presentationDetents([.large])
-            }
     }
 }
 
@@ -704,5 +638,5 @@ struct ResultsView: View {
 
 
 #Preview {
-    ContentView()
+    MainView()
 }
