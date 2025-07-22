@@ -18,12 +18,15 @@ struct CalendarView: View {
             markedDates: markedDates,
             onDateSelected: { date in
                 selectedDate = date
-                showingSheet = true
+                // Small delay to ensure state is updated before sheet presentation
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                    showingSheet = true
+                }
             }
         )
         .sheet(isPresented: $showingSheet) {
-            if let selectedDate = selectedDate {
-                VStack(spacing: 20) {
+            VStack(spacing: 20) {
+                if let selectedDate = selectedDate {
                     Text("You clicked on: \(dateFormatter.string(from: selectedDate))")
                         .font(.headline)
                         .multilineTextAlignment(.center)
@@ -31,15 +34,18 @@ struct CalendarView: View {
                     Text("It \(isDateMarked(selectedDate) ? "is" : "is not") marked.")
                         .font(.subheadline)
                         .foregroundColor(isDateMarked(selectedDate) ? .green : .red)
-                    
-                    Button("Close") {
-                        showingSheet = false
-                    }
-                    .buttonStyle(.borderedProminent)
+                } else {
+                    Text("Loading...")
+                        .font(.headline)
                 }
-                .padding()
-                .presentationDetents([.medium])
+                
+                Button("Close") {
+                    showingSheet = false
+                }
+                .buttonStyle(.borderedProminent)
             }
+            .padding()
+            .presentationDetents([.medium])
         }
     }
     
@@ -68,8 +74,10 @@ struct CalendarViewRepresentable: UIViewRepresentable {
     }
     
     private func makeContent() -> CalendarViewContent {
-        let startDate = calendar.date(byAdding: .year, value: -1, to: Date()) ?? Date()
-        let endDate = calendar.date(byAdding: .year, value: 1, to: Date()) ?? Date()
+        // July 1, 2025
+        let startDate = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1)) ?? Date()
+        // Present date (today)
+        let endDate = Date()
         
         return CalendarViewContent(
             calendar: calendar,
@@ -158,8 +166,9 @@ extension DayView: CalendarItemViewRepresentable {
     }
 }
 
-struct ContentView: View {
-    // REPLACE THIS WITH REAL DATA
+// Example usage
+struct CalendarViewWorking: View {
+    // Sample marked dates
     let markedDates: [Date] = {
         let calendar = Calendar.current
         let today = Date()
@@ -181,5 +190,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    CalendarViewWorking()
 }
