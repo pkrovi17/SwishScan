@@ -1,10 +1,12 @@
 import SwiftUI
 import HorizonCalendar
 
+// Sets up the calendar and is intialized with a markedDates object
 struct CalendarView: View {
     let markedDates: [Date]
     @State private var selectedDate: Date?
-    @State private var showingSheet = false
+    @State private var showResults = false
+    @State private var dragOffset: CGFloat = 0
     
     private let calendar = Calendar.current
     private let dateFormatter: DateFormatter = {
@@ -14,31 +16,61 @@ struct CalendarView: View {
     }()
     
     var body: some View {
-        CalendarViewRepresentable(
-            markedDates: markedDates,
-            onDateSelected: { date in
-                selectedDate = date
-            }
-        )
-        .sheet(isPresented: $showingSheet) {
-            VStack(spacing: 20) {
-                if let selectedDate = selectedDate {
-                    if isDateMarked(selectedDate) {
-                        Text("You clicked on: \(dateFormatter.string(from: selectedDate))")
-                            .font(.headline)
-                            .multilineTextAlignment(.center)
-                    } else {Text("No data for this day.")}
-                } else {
-                    Text("Data is loading, please refresh.")
-                        .font(.headline)
+        ZStack {
+            CalendarViewRepresentable(
+                markedDates: markedDates,
+                onDateSelected: { date in
+                    selectedDate = date
+                    showResults = true
                 }
-            }
-            .padding()
-            .presentationDetents([.medium])
-        }
-        .onChange(of: selectedDate) { oldValue, newValue in
-            if let newValue = newValue, newValue != oldValue {
-                showingSheet = true
+            )
+            
+            if showResults {
+                ResultsView(day: Date()) // fill in with real date
+                    .frame(maxWidth: .infinity, minHeight: 600)
+                    .padding()
+                    .background(Color("secondaryButtonBackground"))
+                    .cornerRadius(15)
+                    .offset(y: dragOffset)
+                    .onAppear {
+                        dragOffset = UIScreen.main.bounds.height
+                        withAnimation(.interpolatingSpring(stiffness: 250, damping: 24)) {
+                            dragOffset = 0
+                        }
+                    }
+                    .gesture(
+                        DragGesture()
+                            .onChanged { value in
+                                if value.translation.height > 0 {
+                                    dragOffset = value.translation.height
+                                }
+                            }
+                            .onEnded { value in
+                                let dragDistance = value.translation.height
+                                let predictedDistance = value.predictedEndTranslation.height
+                                let dragVelocity = predictedDistance - dragDistance
+                                
+                                let shouldDismissByDistance = dragDistance > 300
+                                let shouldDismissByVelocity = dragVelocity > 150
+                                
+                                if shouldDismissByDistance || shouldDismissByVelocity {
+                                    withAnimation(.interpolatingSpring(stiffness: 500, damping: 50)) {
+                                        dragOffset = UIScreen.main.bounds.height
+                                    }
+
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        showResults = false
+                                        dragOffset = 0
+                                    }
+                                } else {
+                                    withAnimation {
+                                        dragOffset = 0
+                                    }
+                                }
+                            }
+                    )
+                    .transition(.move(edge: .bottom))
+                    .animation(.easeInOut, value: showResults)
             }
         }
     }
@@ -94,8 +126,63 @@ struct CalendarViewRepresentable: UIViewRepresentable {
                 )
             )
         }
+        .monthHeaderItemProvider { month in
+            let date = calendar.date(from: month.components)!
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMMM yyyy"
+            let monthText = formatter.string(from: date)
+
+            return CalendarItemModel<MonthHeaderView>(
+                invariantViewProperties: .init(),
+                viewModel: .init(text: monthText)
+            )
+        }
     }
 }
+
+final class MonthHeaderView: UIView {
+    struct ViewModel: Equatable {
+        let text: String
+    }
+
+    struct InvariantViewProperties: Hashable {}
+
+    private let label = UILabel()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        label.textColor = .label
+        addSubview(label)
+
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: leadingAnchor),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
+            label.topAnchor.constraint(equalTo: topAnchor, constant: 16)
+        ])
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func setViewModel(_ viewModel: ViewModel) {
+        label.text = viewModel.text
+    }
+}
+
+extension MonthHeaderView: CalendarItemViewRepresentable {
+    static func makeView(withInvariantViewProperties _: InvariantViewProperties) -> MonthHeaderView {
+        MonthHeaderView()
+    }
+
+    static func setViewModel(_ viewModel: ViewModel, on view: MonthHeaderView) {
+        view.setViewModel(viewModel)
+    }
+}
+
 
 final class DayView: UIView {
     struct ViewModel: Equatable {
@@ -135,7 +222,7 @@ final class DayView: UIView {
     
     func setViewModel(_ viewModel: ViewModel) {
         label.text = viewModel.dayText
-        label.textColor = viewModel.isMarked ? .systemBlue : .white
+        label.textColor = viewModel.isMarked ? .systemBlue : .label
         backgroundColor = viewModel.isMarked ? UIColor(named: "buttonBackground") : .clear
     }
     
@@ -160,26 +247,20 @@ extension DayView: CalendarItemViewRepresentable {
     }
 }
 
-// Example usage
+// This just initializes markedDates and calls CalendarView
 struct CalendarViewWorking: View {
-    // Sample marked dates
     let markedDates: [Date] = {
         let calendar = Calendar.current
-        let today = Date()
         return [
-            today,
-            calendar.date(byAdding: .day, value: 5, to: today) ?? today,
-            calendar.date(byAdding: .day, value: -3, to: today) ?? today,
-            calendar.date(byAdding: .day, value: 10, to: today) ?? today,
-            calendar.date(byAdding: .day, value: -7, to: today) ?? today
+            calendar.date(from: DateComponents(year: 2025, month: 7, day: 15))!,
+            calendar.date(from: DateComponents(year: 2025, month: 7, day: 19))!,
+            // REPLACE WITH REAL DATE DATA
         ]
     }()
     
     var body: some View {
-        NavigationView {
-            CalendarView(markedDates: markedDates)
-                .padding()
-        }
+        CalendarView(markedDates: markedDates)
+            .padding()
     }
 }
 

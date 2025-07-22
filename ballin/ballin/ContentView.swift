@@ -43,7 +43,6 @@ struct HomeView: View {
     @State private var showCamera = false
     @State private var showResults = false
     @State private var dragOffset: CGFloat = 0
-    @State private var isDismissing = false
     @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
     @State private var greetingTime = "night"
@@ -150,7 +149,7 @@ struct HomeView: View {
                 ResultsView(day: Date()) // fill in with real date
                     .frame(maxWidth: .infinity, minHeight: 600)
                     .padding()
-                    .background(.thickMaterial)
+                    .background(Color("secondaryButtonBackground"))
                     .cornerRadius(15)
                     .offset(y: dragOffset)
                     .gesture(
@@ -164,17 +163,16 @@ struct HomeView: View {
                                 let dragDistance = value.translation.height
                                 let predictedDistance = value.predictedEndTranslation.height
                                 let dragVelocity = predictedDistance - dragDistance
-
-                                let shouldDismissByDistance = dragDistance > 150
+                                
+                                let shouldDismissByDistance = dragDistance > 300
                                 let shouldDismissByVelocity = dragVelocity > 150
-
+                                
                                 if shouldDismissByDistance || shouldDismissByVelocity {
-                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                    withAnimation(.interpolatingSpring(stiffness: 500, damping: 50)) {
                                         dragOffset = UIScreen.main.bounds.height
-                                        isDismissing = true
                                     }
 
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                         showResults = false
                                         dragOffset = 0
                                     }
@@ -187,17 +185,6 @@ struct HomeView: View {
                     )
                     .transition(.move(edge: .bottom))
                     .animation(.easeInOut, value: showResults)
-                    .onDisappear {
-                        dragOffset = 0
-                        isDismissing = false
-                    }
-            }
-        }
-        .onChange(of: isDismissing) { oldValue, newValue in
-            if oldValue == false && newValue == true {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                    showResults = false
-                }
             }
         }
         .fullScreenCover(isPresented: $showCamera) {
