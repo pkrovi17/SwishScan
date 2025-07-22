@@ -18,10 +18,6 @@ struct CalendarView: View {
             markedDates: markedDates,
             onDateSelected: { date in
                 selectedDate = date
-                // Small delay to ensure state is updated before sheet presentation
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                    showingSheet = true
-                }
             }
         )
         .sheet(isPresented: $showingSheet) {
@@ -39,6 +35,11 @@ struct CalendarView: View {
             }
             .padding()
             .presentationDetents([.medium])
+        }
+        .onChange(of: selectedDate) { oldValue, newValue in
+            if let newValue = newValue, newValue != oldValue {
+                showingSheet = true
+            }
         }
     }
     
@@ -120,7 +121,7 @@ final class DayView: UIView {
     
     private func setupView() {
         label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         label.textColor = UIColor.label
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -132,17 +133,15 @@ final class DayView: UIView {
         ])
     }
     
-    // CHANGE STYLING HERE
     func setViewModel(_ viewModel: ViewModel) {
         label.text = viewModel.dayText
-        backgroundColor = viewModel.isMarked ? UIColor.systemBlue.withAlphaComponent(0.3) : UIColor.clear
-        layer.borderWidth = viewModel.isMarked ? 2 : 0
-        layer.borderColor = viewModel.isMarked ? UIColor.systemBlue.cgColor : UIColor.clear.cgColor
+        label.textColor = viewModel.isMarked ? .systemBlue : .white
+        backgroundColor = viewModel.isMarked ? UIColor(named: "buttonBackground") : .clear
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        layer.cornerRadius = bounds.width / 2
+        layer.cornerRadius = 15
     }
 }
 
