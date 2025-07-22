@@ -1,153 +1,182 @@
 import SwiftUI
-import UIKit
 import HorizonCalendar
 
-struct WorkoutCalendarView: View {
-    let markedDates: Set<Date>  // Your workout dates
-
-    @State private var selectedDate: Date? = nil
-    @State private var isSheetPresented = false
-
+struct CalendarView: View {
+    let markedDates: [Date]
+    @State private var selectedDate: Date?
+    @State private var showingSheet = false
+    
+    private let calendar = Calendar.current
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter
+    }()
+    
     var body: some View {
-        HorizonCalendarWrapper(markedDates: markedDates) { date in
-            selectedDate = date
-            isSheetPresented = true
-        }
-        .sheet(isPresented: $isSheetPresented) {
+        CalendarViewRepresentable(
+            markedDates: markedDates,
+            onDateSelected: { date in
+                selectedDate = date
+                showingSheet = true
+            }
+        )
+        .sheet(isPresented: $showingSheet) {
             if let selectedDate = selectedDate {
                 VStack(spacing: 20) {
-                    Text("You clicked on:")
-                    Text(dateFormatter.string(from: selectedDate))
-                        .bold()
-                        .font(.title2)
+                    Text("You clicked on: \(dateFormatter.string(from: selectedDate))")
+                        .font(.headline)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("It \(isDateMarked(selectedDate) ? "is" : "is not") marked.")
+                        .font(.subheadline)
+                        .foregroundColor(isDateMarked(selectedDate) ? .green : .red)
+                    
+                    Button("Close") {
+                        showingSheet = false
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
                 .padding()
+                .presentationDetents([.medium])
             }
         }
     }
-
-    private var dateFormatter: DateFormatter {
-        let df = DateFormatter()
-        df.dateStyle = .long
-        return df
+    
+    private func isDateMarked(_ date: Date) -> Bool {
+        markedDates.contains { calendar.isDate($0, inSameDayAs: date) }
     }
 }
 
-struct HorizonCalendarWrapper: UIViewRepresentable {
-    let markedDates: Set<Date>
-    let onDateTap: (Date) -> Void
-
-    func makeUIView(context: Context) -> CalendarView {
-        CalendarView(initialContent: makeContent())
+struct CalendarViewRepresentable: UIViewRepresentable {
+    let markedDates: [Date]
+    let onDateSelected: (Date) -> Void
+    
+    private let calendar = Calendar.current
+    
+    func makeUIView(context: Context) -> HorizonCalendar.CalendarView {
+        let calendarView = HorizonCalendar.CalendarView(initialContent: makeContent())
+        calendarView.daySelectionHandler = { day in
+            let date = calendar.date(from: day.components) ?? Date()
+            onDateSelected(date)
+        }
+        return calendarView
     }
-
-    func updateUIView(_ uiView: CalendarView, context: Context) {
+    
+    func updateUIView(_ uiView: HorizonCalendar.CalendarView, context: Context) {
         uiView.setContent(makeContent())
     }
-
+    
     private func makeContent() -> CalendarViewContent {
-        let calendar = Calendar.current
-        let startDate = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1))!
-        let endDate = Date()
-
+        let startDate = calendar.date(byAdding: .year, value: -1, to: Date()) ?? Date()
+        let endDate = calendar.date(byAdding: .year, value: 1, to: Date()) ?? Date()
+        
         return CalendarViewContent(
             calendar: calendar,
             visibleDateRange: startDate...endDate,
             monthsLayout: .vertical(options: VerticalMonthsLayoutOptions())
         )
-        .withDayItemProvider { day in
-            let date = day.date
-            let isMarked = markedDates.contains(date.stripTime())
-
-            return DayViewContent(
-                dayText: "\(calendar.component(.day, from: date))",
-                isMarked: isMarked,
-                onTap: { onDateTap(date) }
+        .interMonthSpacing(24)
+        .verticalDayMargin(8)
+        .horizontalDayMargin(8)
+        .dayItemProvider { day in
+            let date = calendar.date(from: day.components) ?? Date()
+            let isMarked = markedDates.contains { calendar.isDate($0, inSameDayAs: date) }
+            
+            return CalendarItemModel<DayView>(
+                invariantViewProperties: .init(),
+                viewModel: .init(
+                    dayText: "\(day.day)",
+                    isMarked: isMarked
+                )
             )
         }
     }
 }
 
-extension Date {
-    func stripTime() -> Date {
-        let components = Calendar.current.dateComponents([.year, .month, .day], from: self)
-        return Calendar.current.date(from: components)!
-    }
-}
-
-struct DayViewContent {
-    let dayText: String
-    let isMarked: Bool
-    let onTap: () -> Void
-}
-
 final class DayView: UIView {
-
-    private let label = UILabel()
-    private var tapHandler: (() -> Void)?
-
+    struct ViewModel: Equatable {
+        let dayText: String
+        let isMarked: Bool
+    }
+    
+    struct InvariantViewProperties: Hashable {
+        
+    }
+    
+    private var label: UILabel!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setup()
+        setupView()
     }
-
+    
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        setupView()
     }
-
-    private func setup() {
-        label.translatesAutoresizingMaskIntoConstraints = false
+    
+    private func setupView() {
+        label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = UIColor.label
         label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
         addSubview(label)
-
         NSLayoutConstraint.activate([
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor),
-            label.widthAnchor.constraint(equalTo: widthAnchor),
-            label.heightAnchor.constraint(equalTo: heightAnchor)
+            label.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
-
-        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        addGestureRecognizer(tap)
     }
-
-    func configure(with content: DayViewContent) {
-        label.text = content.dayText
-        label.textColor = .label
-        backgroundColor = content.isMarked ? UIColor.systemGreen.withAlphaComponent(0.3) : .clear
+    
+    func setViewModel(_ viewModel: ViewModel) {
+        label.text = viewModel.dayText
+        backgroundColor = viewModel.isMarked ? UIColor.systemBlue.withAlphaComponent(0.3) : UIColor.clear
+        layer.borderWidth = viewModel.isMarked ? 2 : 0
+        layer.borderColor = viewModel.isMarked ? UIColor.systemBlue.cgColor : UIColor.clear.cgColor
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
         layer.cornerRadius = bounds.width / 2
-        tapHandler = content.onTap
-    }
-
-    @objc private func handleTap() {
-        tapHandler?()
     }
 }
 
-
-extension CalendarViewContent {
-    func withDayItemProvider(
-        _ provider: @escaping (Day) -> DayViewContent
-    ) -> CalendarViewContent {
-        withDayItemViewProvider { day -> UIView in
-            let content = provider(day)
-            let view = DayView()
-            view.configure(with: content)
-            return view
-        }
+extension DayView: CalendarItemViewRepresentable {
+    static func makeView(
+        withInvariantViewProperties invariantViewProperties: InvariantViewProperties
+    ) -> DayView {
+        return DayView()
+    }
+    
+    static func setViewModel(
+        _ viewModel: ViewModel,
+        on view: DayView
+    ) {
+        view.setViewModel(viewModel)
     }
 }
-
 
 struct ContentView: View {
+    // REPLACE THIS WITH REAL DATA
+    let markedDates: [Date] = {
+        let calendar = Calendar.current
+        let today = Date()
+        return [
+            today,
+            calendar.date(byAdding: .day, value: 5, to: today) ?? today,
+            calendar.date(byAdding: .day, value: -3, to: today) ?? today,
+            calendar.date(byAdding: .day, value: 10, to: today) ?? today,
+            calendar.date(byAdding: .day, value: -7, to: today) ?? today
+        ]
+    }()
+    
     var body: some View {
-        WorkoutCalendarView(
-            markedDates: [
-                Date(), // today
-                Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-                Calendar.current.date(from: DateComponents(year: 2025, month: 7, day: 5))!
-            ]
-        )
+        NavigationView {
+            CalendarView(markedDates: markedDates)
+                .navigationTitle("Calendar")
+        }
     }
 }
 

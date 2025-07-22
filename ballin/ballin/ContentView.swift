@@ -20,7 +20,7 @@ struct MainView: View {
                     Text("Home")
                 }
                 .tag(0)
-            CalendarView()
+//            CalendarView()
                 .tabItem {
                     Image(systemName: "clock.fill")
                     Text("Archive")
