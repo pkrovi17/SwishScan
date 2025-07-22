@@ -27,22 +27,15 @@ struct CalendarView: View {
         .sheet(isPresented: $showingSheet) {
             VStack(spacing: 20) {
                 if let selectedDate = selectedDate {
-                    Text("You clicked on: \(dateFormatter.string(from: selectedDate))")
-                        .font(.headline)
-                        .multilineTextAlignment(.center)
-                    
-                    Text("It \(isDateMarked(selectedDate) ? "is" : "is not") marked.")
-                        .font(.subheadline)
-                        .foregroundColor(isDateMarked(selectedDate) ? .green : .red)
+                    if isDateMarked(selectedDate) {
+                        Text("You clicked on: \(dateFormatter.string(from: selectedDate))")
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                    } else {Text("No data for this day.")}
                 } else {
-                    Text("Loading...")
+                    Text("Data is loading, please refresh.")
                         .font(.headline)
                 }
-                
-                Button("Close") {
-                    showingSheet = false
-                }
-                .buttonStyle(.borderedProminent)
             }
             .padding()
             .presentationDetents([.medium])
@@ -54,6 +47,8 @@ struct CalendarView: View {
     }
 }
 
+
+// The actual calendar object
 struct CalendarViewRepresentable: UIViewRepresentable {
     let markedDates: [Date]
     let onDateSelected: (Date) -> Void
@@ -74,9 +69,8 @@ struct CalendarViewRepresentable: UIViewRepresentable {
     }
     
     private func makeContent() -> CalendarViewContent {
-        // July 1, 2025
+        // Setting endpoints for shown dates
         let startDate = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1)) ?? Date()
-        // Present date (today)
         let endDate = Date()
         
         return CalendarViewContent(
@@ -138,6 +132,7 @@ final class DayView: UIView {
         ])
     }
     
+    // CHANGE STYLING HERE
     func setViewModel(_ viewModel: ViewModel) {
         label.text = viewModel.dayText
         backgroundColor = viewModel.isMarked ? UIColor.systemBlue.withAlphaComponent(0.3) : UIColor.clear
@@ -184,7 +179,7 @@ struct CalendarViewWorking: View {
     var body: some View {
         NavigationView {
             CalendarView(markedDates: markedDates)
-                .navigationTitle("Calendar")
+                .padding()
         }
     }
 }
