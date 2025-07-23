@@ -111,11 +111,13 @@ struct CalendarViewRepresentable: UIViewRepresentable {
             onDateSelected(date)
         }
 
-        calendarView.scroll(
-            toMonthContaining: Date(),
-            scrollPosition: .firstFullyVisiblePosition,
-            animated: true
-        )
+        DispatchQueue.main.async {
+            calendarView.scroll(
+                toMonthContaining: Date(),
+                scrollPosition: .firstFullyVisiblePosition,
+                animated: false
+            )
+        }
 
         calendarView.didScroll = { visibleDayRange, _ in
             let firstDay = visibleDayRange.lowerBound
