@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3C0A58862E2F064900749FF5 /* HorizonCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A58852E2F064900749FF5 /* HorizonCalendar */; };
+		3C0A588E2E30330400749FF5 /* HorizonCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 3C0A588D2E30330400749FF5 /* HorizonCalendar */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3C0A58862E2F064900749FF5 /* HorizonCalendar in Frameworks */,
+				3C0A588E2E30330400749FF5 /* HorizonCalendar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,7 +83,7 @@
 			);
 			name = ballin;
 			packageProductDependencies = (
-				3C0A58852E2F064900749FF5 /* HorizonCalendar */,
+				3C0A588D2E30330400749FF5 /* HorizonCalendar */,
 			);
 			productName = ballin;
 			productReference = 3CD49E742E22FF4800DF29FF /* ballin.app */;
@@ -117,7 +117,7 @@
 			mainGroup = 3CD49E6B2E22FF4800DF29FF;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				3C0A58842E2F064900749FF5 /* XCRemoteSwiftPackageReference "HorizonCalendar" */,
+				3C0A588C2E30330400749FF5 /* XCRemoteSwiftPackageReference "HorizonCalendar" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3CD49E752E22FF4800DF29FF /* Products */;
@@ -363,20 +363,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		3C0A58842E2F064900749FF5 /* XCRemoteSwiftPackageReference "HorizonCalendar" */ = {
+		3C0A588C2E30330400749FF5 /* XCRemoteSwiftPackageReference "HorizonCalendar" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/HorizonCalendar.git";
 			requirement = {
-				kind = upToNextMajorVersion;
+				kind = upToNextMinorVersion;
 				minimumVersion = 1.13.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		3C0A58852E2F064900749FF5 /* HorizonCalendar */ = {
+		3C0A588D2E30330400749FF5 /* HorizonCalendar */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3C0A58842E2F064900749FF5 /* XCRemoteSwiftPackageReference "HorizonCalendar" */;
+			package = 3C0A588C2E30330400749FF5 /* XCRemoteSwiftPackageReference "HorizonCalendar" */;
 			productName = HorizonCalendar;
 		};
 /* End XCSwiftPackageProductDependency section */

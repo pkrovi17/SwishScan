@@ -3,6 +3,7 @@ import AVFoundation
 import PhotosUI
 import Photos
 
+
 class CameraManager: NSObject, ObservableObject {
     private let session = AVCaptureSession()
     private var videoOutput = AVCaptureMovieFileOutput()

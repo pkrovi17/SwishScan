@@ -1,11 +1,12 @@
 import SwiftUI
 
+
 struct MainView: View {
     @AppStorage("isDarkMode") var isDarkMode = false
     @State private var selectedTab = 0
     
     var body: some View {
-        // Basic TabView setup
+        // Basic tabview n shi
         TabView(selection: $selectedTab) {
             HomeView(isDarkMode: $isDarkMode, selectedTab: $selectedTab)
                 .padding(.horizontal, 10)
