@@ -6,7 +6,7 @@ import HorizonCalendar
 struct CalendarView: View {
     let markedDates: [Date]
     @State private var selectedDate: Date?
-    @State private var currentYear: String = "\(Calendar.current.component(.year, from: Date()))"
+    @State private var currentYear: Int = Calendar.current.component(.year, from: Date())
 
     @State private var showResults = false
     @State private var dragOffset: CGFloat = 0
@@ -21,12 +21,13 @@ struct CalendarView: View {
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 16) {
-                Text(currentYear)
+                Text(String(currentYear))
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.leading)
                     .padding(.top)
-                    .contentTransition(.numericText(value: Double(currentYear)!))
+                    .contentTransition(.numericText(value: Double(currentYear)))
+                    .animation(.easeInOut, value: currentYear) // actually triggers the animation
                 
                 CalendarViewRepresentable(
                     markedDates: markedDates,
@@ -98,7 +99,7 @@ struct CalendarView: View {
 struct CalendarViewRepresentable: UIViewRepresentable {
     let markedDates: [Date]
     let onDateSelected: (Date) -> Void
-    @Binding var currentYear: String
+    @Binding var currentYear: Int
     
     private let calendar = Calendar.current
     
@@ -120,7 +121,7 @@ struct CalendarViewRepresentable: UIViewRepresentable {
             let firstDay = visibleDayRange.lowerBound
             if let date = calendar.date(from: firstDay.components) {
                 let year = calendar.component(.year, from: date)
-                context.coordinator.currentYear.wrappedValue = "\(year)"
+                context.coordinator.currentYear.wrappedValue = year
             }
         }
 
@@ -175,9 +176,9 @@ struct CalendarViewRepresentable: UIViewRepresentable {
     }
 
     class Coordinator {
-        var currentYear: Binding<String>
+        var currentYear: Binding<Int>
         
-        init(currentYear: Binding<String>) {
+        init(currentYear: Binding<Int>) {
             self.currentYear = currentYear
         }
     }
