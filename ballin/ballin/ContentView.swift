@@ -12,21 +12,27 @@ struct MainView: View {
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
-                    Image(systemName: "house.fill")
-                        .padding(.top, 30)
-                    Text("Home")
+                    VStack {
+                        Image(systemName: "house.fill")
+                            .padding(.top, 30)
+                        Text("Home")
+                    }
                 }
                 .tag(0)
             CalendarViewWorking()
                 .tabItem {
-                    Image(systemName: "clock.fill")
-                    Text("Archive")
+                    VStack {
+                        Image(systemName: "clock.fill")
+                        Text("Archive")
+                    }
                 }
                 .tag(1)
             DatabaseView()
                 .tabItem {
-                    Image(systemName: "person.fill")
-                    Text("Database")
+                    VStack {
+                        Image(systemName: "person.fill")
+                        Text("Database")
+                    }
                 }
                 .tag(2)
         }

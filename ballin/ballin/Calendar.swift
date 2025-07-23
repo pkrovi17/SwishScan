@@ -27,7 +27,7 @@ struct CalendarView: View {
                     .padding(.leading)
                     .padding(.top)
                     .contentTransition(.numericText(value: Double(currentYear)))
-                    .animation(.easeInOut, value: currentYear) // actually triggers the animation
+                    .animation(.easeInOut, value: currentYear)
                 
                 CalendarViewRepresentable(
                     markedDates: markedDates,
@@ -41,7 +41,7 @@ struct CalendarView: View {
             
             if showResults {
                 ResultsView(day: Date()) // fill in with real date
-                    .frame(maxWidth: .infinity, minHeight: 600)
+                    .frame(maxWidth: .infinity, minHeight: 650)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
                     .cornerRadius(15)
@@ -68,7 +68,7 @@ struct CalendarView: View {
                                 let shouldDismissByVelocity = dragVelocity > 150
                                 
                                 if shouldDismissByDistance || shouldDismissByVelocity {
-                                    withAnimation(.interpolatingSpring(stiffness: 500, damping: 50)) {
+                                    withAnimation(.interpolatingSpring(stiffness: 800, damping: 100)) {
                                         dragOffset = UIScreen.main.bounds.height
                                     }
 
@@ -108,7 +108,9 @@ struct CalendarViewRepresentable: UIViewRepresentable {
 
         calendarView.daySelectionHandler = { day in
             let date = calendar.date(from: day.components) ?? Date()
-            onDateSelected(date)
+            if date <= Date() {
+                onDateSelected(date)
+            }
         }
 
         DispatchQueue.main.async {
@@ -136,7 +138,7 @@ struct CalendarViewRepresentable: UIViewRepresentable {
     
     private func makeContent() -> CalendarViewContent {
         // Setting endpoints for shown dates
-        let startDate = calendar.date(from: DateComponents(year: 2024, month: 1, day: 1)) ?? Date() // SET THIS TO JULY 1 2025 WHEN DONE
+        let startDate = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1)) ?? Date() // SET THIS TO JULY 1 2025 WHEN DONE
         let endDate = Date()
         
         return CalendarViewContent(
@@ -156,7 +158,7 @@ struct CalendarViewRepresentable: UIViewRepresentable {
                 viewModel: .init(
                     dayText: "\(day.day)",
                     isMarked: isMarked,
-                    isToday: calendar.isDate(Date(), inSameDayAs: date),
+                    date: date,
                 )
             )
         }
@@ -171,6 +173,7 @@ struct CalendarViewRepresentable: UIViewRepresentable {
                 viewModel: .init(text: monthText)
             )
         }
+        .interMonthSpacing(48)
     }
     
     func makeCoordinator() -> Coordinator {
@@ -202,6 +205,7 @@ final class MonthHeaderView: UIView {
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 32, weight: .semibold)
         label.textColor = .label
+
         addSubview(label)
 
         NSLayoutConstraint.activate([
@@ -235,7 +239,7 @@ final class DayView: UIView {
     struct ViewModel: Equatable {
         let dayText: String
         let isMarked: Bool
-        let isToday: Bool
+        let date: Date
     }
     
     struct InvariantViewProperties: Hashable {
@@ -269,11 +273,14 @@ final class DayView: UIView {
     }
     
     func setViewModel(_ viewModel: ViewModel) {
-        if viewModel.isToday {
+        let calendar = Calendar.current
+        let isToday = calendar.isDate(Date(), inSameDayAs: viewModel.date)
+        
+        if isToday {
             label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
         }
         label.text = viewModel.dayText
-        label.textColor = viewModel.isMarked ? .systemBlue : viewModel.isToday ? .label : UIColor(named: "secondaryButtonText")
+        label.textColor = viewModel.isMarked ? .systemBlue : isToday ? .label : viewModel.date > Date() ? UIColor(named: "secondaryButtonBackground") : UIColor(named: "secondaryButtonText")
         backgroundColor = viewModel.isMarked ? UIColor(named: "buttonBackground") : .clear
     }
     
