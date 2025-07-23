@@ -1,10 +1,13 @@
 import SwiftUI
 import HorizonCalendar
 
+
 // Sets up the calendar and is intialized with a markedDates object
 struct CalendarView: View {
     let markedDates: [Date]
     @State private var selectedDate: Date?
+    @State private var currentYear: String = "\(Calendar.current.component(.year, from: Date()))"
+
     @State private var showResults = false
     @State private var dragOffset: CGFloat = 0
     
@@ -17,13 +20,23 @@ struct CalendarView: View {
     
     var body: some View {
         ZStack {
-            CalendarViewRepresentable(
-                markedDates: markedDates,
-                onDateSelected: { date in
-                    selectedDate = date
-                    showResults = true
-                }
-            )
+            VStack(alignment: .leading, spacing: 16) {
+                Text(currentYear)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.leading)
+                    .padding(.top)
+                    .contentTransition(.numericText(value: Double(currentYear)!))
+                
+                CalendarViewRepresentable(
+                    markedDates: markedDates,
+                    onDateSelected: { date in
+                        selectedDate = date
+                        showResults = true
+                    },
+                    currentYear: $currentYear
+                )
+            }
             
             if showResults {
                 ResultsView(day: Date()) // fill in with real date
@@ -85,15 +98,32 @@ struct CalendarView: View {
 struct CalendarViewRepresentable: UIViewRepresentable {
     let markedDates: [Date]
     let onDateSelected: (Date) -> Void
+    @Binding var currentYear: String
     
     private let calendar = Calendar.current
     
     func makeUIView(context: Context) -> HorizonCalendar.CalendarView {
         let calendarView = HorizonCalendar.CalendarView(initialContent: makeContent())
+
         calendarView.daySelectionHandler = { day in
             let date = calendar.date(from: day.components) ?? Date()
             onDateSelected(date)
         }
+
+        calendarView.scroll(
+            toMonthContaining: Date(),
+            scrollPosition: .firstFullyVisiblePosition,
+            animated: true
+        )
+
+        calendarView.didScroll = { visibleDayRange, _ in
+            let firstDay = visibleDayRange.lowerBound
+            if let date = calendar.date(from: firstDay.components) {
+                let year = calendar.component(.year, from: date)
+                context.coordinator.currentYear.wrappedValue = "\(year)"
+            }
+        }
+
         return calendarView
     }
     
@@ -103,7 +133,7 @@ struct CalendarViewRepresentable: UIViewRepresentable {
     
     private func makeContent() -> CalendarViewContent {
         // Setting endpoints for shown dates
-        let startDate = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1)) ?? Date()
+        let startDate = calendar.date(from: DateComponents(year: 2024, month: 1, day: 1)) ?? Date() // SET THIS TO JULY 1 2025 WHEN DONE
         let endDate = Date()
         
         return CalendarViewContent(
@@ -122,14 +152,15 @@ struct CalendarViewRepresentable: UIViewRepresentable {
                 invariantViewProperties: .init(),
                 viewModel: .init(
                     dayText: "\(day.day)",
-                    isMarked: isMarked
+                    isMarked: isMarked,
+                    isToday: calendar.isDate(Date(), inSameDayAs: date),
                 )
             )
         }
         .monthHeaderItemProvider { month in
             let date = calendar.date(from: month.components)!
             let formatter = DateFormatter()
-            formatter.dateFormat = "MMMM yyyy"
+            formatter.dateFormat = "MMMM"
             let monthText = formatter.string(from: date)
 
             return CalendarItemModel<MonthHeaderView>(
@@ -138,7 +169,20 @@ struct CalendarViewRepresentable: UIViewRepresentable {
             )
         }
     }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(currentYear: $currentYear)
+    }
+
+    class Coordinator {
+        var currentYear: Binding<String>
+        
+        init(currentYear: Binding<String>) {
+            self.currentYear = currentYear
+        }
+    }
 }
+
 
 final class MonthHeaderView: UIView {
     struct ViewModel: Equatable {
@@ -153,12 +197,12 @@ final class MonthHeaderView: UIView {
         super.init(frame: frame)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
-        label.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        label.font = UIFont.systemFont(ofSize: 32, weight: .semibold)
         label.textColor = .label
         addSubview(label)
 
         NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: leadingAnchor),
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
             label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
             label.topAnchor.constraint(equalTo: topAnchor, constant: 16)
         ])
@@ -188,6 +232,7 @@ final class DayView: UIView {
     struct ViewModel: Equatable {
         let dayText: String
         let isMarked: Bool
+        let isToday: Bool
     }
     
     struct InvariantViewProperties: Hashable {
@@ -221,8 +266,11 @@ final class DayView: UIView {
     }
     
     func setViewModel(_ viewModel: ViewModel) {
+        if viewModel.isToday {
+            label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        }
         label.text = viewModel.dayText
-        label.textColor = viewModel.isMarked ? .systemBlue : .label
+        label.textColor = viewModel.isMarked ? .systemBlue : viewModel.isToday ? .label : UIColor(named: "secondaryButtonText")
         backgroundColor = viewModel.isMarked ? UIColor(named: "buttonBackground") : .clear
     }
     
@@ -231,6 +279,7 @@ final class DayView: UIView {
         layer.cornerRadius = 15
     }
 }
+
 
 extension DayView: CalendarItemViewRepresentable {
     static func makeView(
@@ -246,6 +295,7 @@ extension DayView: CalendarItemViewRepresentable {
         view.setViewModel(viewModel)
     }
 }
+
 
 // This just initializes markedDates and calls CalendarView
 struct CalendarViewWorking: View {
@@ -263,6 +313,7 @@ struct CalendarViewWorking: View {
             .padding()
     }
 }
+
 
 #Preview {
     CalendarViewWorking()
