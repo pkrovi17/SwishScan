@@ -8,7 +8,7 @@ struct CalendarView: View {
     @State private var selectedDate: Date?
     @State private var currentYear: Int = Calendar.current.component(.year, from: Date())
 
-    @State private var showResults = false
+    @Binding var showResults: Bool
     @State private var dragOffset: CGFloat = 0
     
     private let calendar = Calendar.current
@@ -309,6 +309,8 @@ extension DayView: CalendarItemViewRepresentable {
 
 // This just initializes markedDates and calls CalendarView
 struct CalendarViewWorking: View {
+    @Binding var showResults: Bool
+    
     let markedDates: [Date] = {
         let calendar = Calendar.current
         return [
@@ -319,12 +321,7 @@ struct CalendarViewWorking: View {
     }()
     
     var body: some View {
-        CalendarView(markedDates: markedDates)
+        CalendarView(markedDates: markedDates, showResults: $showResults)
             .padding()
     }
-}
-
-
-#Preview {
-    CalendarViewWorking()
 }

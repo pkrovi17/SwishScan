@@ -5,10 +5,15 @@ struct MainView: View {
     @AppStorage("isDarkMode") var isDarkMode = false
     @State private var selectedTab = 0
     
+    // Eventually look for tab reselection with these
+    @State private var showHomeResults = false
+    @State private var showCalendarResults = false
+    @State private var showDatabaseResults = false
+    
     var body: some View {
         // Basic tabview n shi
         TabView(selection: $selectedTab) {
-            HomeView(isDarkMode: $isDarkMode, selectedTab: $selectedTab)
+            HomeView(isDarkMode: $isDarkMode, selectedTab: $selectedTab, showResults: $showHomeResults)
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
@@ -19,7 +24,7 @@ struct MainView: View {
                     }
                 }
                 .tag(0)
-            CalendarViewWorking()
+            CalendarViewWorking(showResults: $showCalendarResults)
                 .tabItem {
                     VStack {
                         Image(systemName: "clock.fill")
@@ -36,10 +41,10 @@ struct MainView: View {
                 }
                 .tag(2)
         }
-            .onAppear() {
-                UITabBar.appearance().backgroundColor = UIColor.systemBackground
+        .onAppear() {
+            UITabBar.appearance().backgroundColor = UIColor.systemBackground
         }
-            .preferredColorScheme(isDarkMode ? .dark : .light)
+        .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 }
 
@@ -48,11 +53,13 @@ struct HomeView: View {
     @Binding var isDarkMode: Bool
     @Binding var selectedTab: Int
     @State private var showCamera = false
-    @State private var showResults = false
-    @State private var dragOffset: CGFloat = 0
+
     @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
     @State private var greetingTime = "night"
+    
+    @Binding var showResults: Bool
+    @State private var dragOffset: CGFloat = 0
     
     var body: some View {
         ZStack {
