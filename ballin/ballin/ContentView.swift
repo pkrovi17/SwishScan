@@ -171,7 +171,7 @@ struct HomeView: View {
                                 let predictedDistance = value.predictedEndTranslation.height
                                 let dragVelocity = predictedDistance - dragDistance
                                 
-                                let shouldDismissByDistance = dragDistance > 300
+                                let shouldDismissByDistance = dragDistance > 500
                                 let shouldDismissByVelocity = dragVelocity > 150
                                 
                                 if shouldDismissByDistance || shouldDismissByVelocity {
