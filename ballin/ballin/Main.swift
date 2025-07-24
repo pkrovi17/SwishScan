@@ -232,13 +232,6 @@ struct IdentifiableDate: Identifiable {
 }
 
 
-struct DatabaseView: View {
-    var body: some View {
-        Text("Under Construction n shit")
-    }
-}
-
-
 struct ResultsView: View {
     @State var day: Date
     @State private var hasAccuracy = false
