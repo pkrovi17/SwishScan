@@ -251,7 +251,7 @@ struct CameraView: View {
                            height: UIScreen.main.bounds.width * (16.0 / 9.0))
                 .clipped()
                 .ignoresSafeArea()
-                .clipShape(RoundedRectangle(cornerRadius: 15))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
                 .offset(y: 10)
             VStack {
                 Text(formattedTime)
@@ -302,10 +302,12 @@ struct CameraView: View {
                             startTimer()
                         }
                     }) {
-                        RoundedRectangle(cornerRadius: cameraManager.isRecording ? 10 : 50)
+                        RoundedRectangle(cornerRadius: cameraManager.isRecording ? 16 : 50)
                             .fill(.red)
                             .frame(width: 70, height: 70)
                     }
+                    .buttonStyle(ScaledButtonStyle()) // <- This replaces the default fade with scale
+                    .scaleEffect(cameraManager.isRecording ? 0.9 : 1.0)
                     Spacer()
                     // Close camera
                     Button(action: {

@@ -44,7 +44,7 @@ struct CalendarView: View {
                     .frame(maxWidth: .infinity, minHeight: 650)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
-                    .cornerRadius(15)
+                    .cornerRadius(16)
                     .offset(y: dragOffset)
                     .onAppear {
                         dragOffset = UIScreen.main.bounds.height
@@ -277,7 +277,7 @@ final class DayView: UIView {
         let isToday = calendar.isDate(Date(), inSameDayAs: viewModel.date)
         
         if isToday {
-            label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+            label.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         }
         label.text = viewModel.dayText
         label.textColor = viewModel.isMarked ? .systemBlue : isToday ? .label : viewModel.date > Date() ? UIColor(named: "secondaryButtonBackground") : UIColor(named: "secondaryButtonText")
@@ -286,7 +286,7 @@ final class DayView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        layer.cornerRadius = 15
+        layer.cornerRadius = 16
     }
 }
 
