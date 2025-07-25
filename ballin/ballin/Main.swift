@@ -111,7 +111,7 @@ struct HomeView: View {
                                     .bold()
                                     .padding(.top, 8)
                             }
-                            .frame(maxWidth: 120, minHeight: 140)
+                            .frame(maxWidth: 120, minHeight: 160)
                             .padding()
                             .background(Color("buttonBackground"))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -237,12 +237,6 @@ struct HomeView: View {
             greetingAdjective = items.randomElement()
         }
     }
-}
-
-
-struct IdentifiableDate: Identifiable {
-    var id: Date { date }
-    let date: Date
 }
 
 

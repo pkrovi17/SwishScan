@@ -258,20 +258,27 @@ struct CameraView: View {
                     .font(.system(size: 20, weight: .semibold, design: .monospaced))
                     .monospacedDigit()
                     .foregroundColor(.white)
-                Text("\(instructions ?? "StupidScan™")")
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
-                    .font(.caption)
-                    .bold()
-                    .padding(.horizontal, 10)
-                    .opacity(instructionsVisible ? 1 : 0)
-                    .frame(maxWidth: 300, maxHeight: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.25)) {
-                            instructionsVisible.toggle()
-                        }
+                VStack {
+                    Text("Tap to hide instructions.")
+                        .foregroundColor(.white)
+                        .font(.caption)
+                        .opacity(0.3)
+                        .padding(.bottom, 4)
+                    Text("\(instructions ?? "StupidScan™")")
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+                        .font(.caption)
+                        .bold()
+                }
+                .padding(.horizontal, 10)
+                .opacity(instructionsVisible ? 1 : 0)
+                .frame(maxWidth: 300, maxHeight: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        instructionsVisible.toggle()
                     }
+                }
 
                 Spacer()
 
