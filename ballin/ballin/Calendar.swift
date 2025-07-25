@@ -41,11 +41,11 @@ struct CalendarView: View {
             
             if showResults {
                 ResultsView(day: Date()) // fill in with real date
-                    .frame(maxWidth: .infinity, minHeight: 650)
+                    .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
                     .cornerRadius(16)
-                    .offset(y: dragOffset)
+                    .offset(y: dragOffset - 3)
                     .onAppear {
                         dragOffset = UIScreen.main.bounds.height
                         withAnimation(.interpolatingSpring(stiffness: 250, damping: 24)) {

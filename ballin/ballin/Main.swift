@@ -17,27 +17,20 @@ struct MainView: View {
                 .padding(.horizontal, 10)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
-                    VStack {
-                        Image(systemName: "house.fill")
-                            .padding(.top, 30)
-                        Text("Home")
-                    }
+                    Image(systemName: "house.fill")
+                    Text("Home")
                 }
                 .tag(0)
             CalendarViewWorking(showResults: $showCalendarResults)
                 .tabItem {
-                    VStack {
-                        Image(systemName: "clock.fill")
-                        Text("Archive")
-                    }
+                    Image(systemName: "clock.fill")
+                    Text("Archive")
                 }
                 .tag(1)
             DatabaseView(showResults: $showDatabaseResults)
                 .tabItem {
-                    VStack {
-                        Image(systemName: "person.fill")
-                        Text("Database")
-                    }
+                    Image(systemName: "person.fill")
+                    Text("Database")
                 }
                 .tag(2)
         }
@@ -80,7 +73,7 @@ struct HomeView: View {
         ZStack {
             VStack {
                 // Top settings and welcome
-                VStack (alignment: .leading){
+                VStack(alignment: .leading) {
                     Text("\(greetingAdjective ?? "Good") \(greetingTime).")
                         .font(.title)
                         .fontWeight(.regular)
@@ -186,7 +179,7 @@ struct HomeView: View {
             
             if showResults {
                 ResultsView(day: Date()) // fill in with real date
-                    .frame(maxWidth: .infinity, minHeight: 600)
+                    .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
                     .cornerRadius(16)
