@@ -127,7 +127,7 @@ struct HomeView: View {
                                 .foregroundColor(Color("secondaryButtonText"))
                                 .bold()
                         }
-                        .frame(maxWidth: 337, maxHeight: 60)
+                        .frame(maxWidth: 336, maxHeight: 60)
 //                        .padding(.vertical)
                         .background(Color("secondaryButtonBackground"))
                         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -146,7 +146,7 @@ struct HomeView: View {
                                     .foregroundColor(Color("secondaryButtonText"))
                                     .frame(height: 24)
                             }
-                            .frame(maxWidth: 102, maxHeight: 60)
+                            .frame(maxWidth: 101.33, maxHeight: 60)
                             .background(Color("secondaryButtonBackground"))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
@@ -161,7 +161,7 @@ struct HomeView: View {
                                     .foregroundColor(Color("secondaryButtonText"))
                                     .frame(height: 24)
                             }
-                            .frame(maxWidth: 102, maxHeight: 60)
+                            .frame(maxWidth: 101.33, maxHeight: 60)
                             .background(Color("secondaryButtonBackground"))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
@@ -176,7 +176,7 @@ struct HomeView: View {
                                     .foregroundColor(Color("secondaryButtonText"))
                                     .frame(height: 24)
                             }
-                            .frame(maxWidth: 102, maxHeight: 60)
+                            .frame(maxWidth: 101.33, maxHeight: 60)
                             .background(Color("secondaryButtonBackground"))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
