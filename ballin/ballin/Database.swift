@@ -14,7 +14,7 @@ struct GridSquare: View {
         self.imageName = imageName
         self.title = title
         self.isUser = isUser
-        self._showResults = showResults  // <- IMPORTANT
+        self._showResults = showResults
     }
     
     var body: some View {
@@ -32,10 +32,22 @@ struct GridSquare: View {
                     .foregroundColor(self.isUser ? .accentColor : Color("secondaryButtonText"))
                     .frame(height: 64)
                 
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(self.isUser ? .accentColor : Color("secondaryButtonText"))
-                    .padding(.top, 12)
+                if isUser {
+                    Text(title)
+                        .bold()
+                        .foregroundColor(.accentColor)
+                        .padding(.top, 12)
+                        .padding(.horizontal)
+                } else {
+                    Text(title)
+                        .font(.caption)
+                        .bold()
+                        .foregroundColor(Color("secondaryButtonText"))
+                        .padding(.top, 12)
+                        .padding(.horizontal)
+                }
+                
+                
             }
             .frame(width: 160, height: 200)
             .background(self.isUser ? Color("buttonBackground") : Color("secondaryButtonBackground"))
@@ -59,17 +71,33 @@ struct DatabaseView: View {
                     // Top two with 32 pix of top padding
                     GridSquare(imageName: "person.fill", title: "You", isUser: true, showResults: $showResults)
                         .padding(.top, 32)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Giannis Antetokounmpo", showResults: $showResults)
                         .padding(.top, 32)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Devin Booker", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Jaylen Brown", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Stephen Curry", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Luka Dončić", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Kevin Durant", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Anthony Edwards", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Joel Embiid", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Shai Gilgeous-Alexander", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Tyrese Haliburton", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Chet Holmgren", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Kyrie Irving", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "LeBron James", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Nikola Jokić", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Jaren Jackson Jr.", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Donovan Mitchell", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Jamal Murray", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Kristaps Porziņģis", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Austin Reaves", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Alperen Şengün", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Jayson Tatum", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Fred VanVleet", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Victor Wembanyama", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Zion Williamson", showResults: $showResults)
                         .padding(.bottom, 32)
-                    GridSquare(imageName: "person.fill", title: "Name", showResults: $showResults)
+                    GridSquare(imageName: "person.fill", title: "Trae Young", showResults: $showResults)
                         .padding(.bottom, 32)
                     // Top two with 32 pix of bottom padding
                 }
