@@ -67,6 +67,8 @@ struct HomeView: View {
     @Binding var selectedTab: Int
     @State private var showCamera = false
 
+    @AppStorage("usingMeters") var usingMeters = false
+    
     @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
     @State private var greetingTime = "night"
@@ -128,7 +130,6 @@ struct HomeView: View {
                                 .bold()
                         }
                         .frame(maxWidth: 336, maxHeight: 60)
-//                        .padding(.vertical)
                         .background(Color("secondaryButtonBackground"))
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
@@ -137,14 +138,12 @@ struct HomeView: View {
                     // Settings and dark mode buttons
                     HStack (spacing: 16) {
                         Button(action: {
-                            // find something for this
+                            usingMeters.toggle()
                         }) {
                             VStack {
-                                Image(systemName: "gearshape.fill")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
+                                Text(usingMeters ? "ms" : "yds")
                                     .foregroundColor(Color("secondaryButtonText"))
-                                    .frame(height: 24)
+                                    .bold()
                             }
                             .frame(maxWidth: 101.33, maxHeight: 60)
                             .background(Color("secondaryButtonBackground"))
