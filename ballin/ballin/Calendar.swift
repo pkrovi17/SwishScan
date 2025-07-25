@@ -20,6 +20,7 @@ struct CalendarView: View {
     
     var body: some View {
         ZStack {
+            // Year text
             VStack(alignment: .leading, spacing: 16) {
                 Text(String(currentYear))
                     .font(.largeTitle)
@@ -109,6 +110,7 @@ struct CalendarViewRepresentable: UIViewRepresentable {
         calendarView.daySelectionHandler = { day in
             let date = calendar.date(from: day.components) ?? Date()
             if date <= Date() {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 onDateSelected(date)
             }
         }

@@ -19,6 +19,7 @@ struct GridSquare: View {
     
     var body: some View {
         Button(action: {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
             tapped = true
             withAnimation(.easeInOut(duration: 0.5)) {
                 tapped = false

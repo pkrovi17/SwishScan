@@ -89,6 +89,7 @@ struct HomeView: View {
                     HStack(spacing: 16) {
                         ForEach(["Accuracy", "Form"], id: \.self) { title in
                             Button(action: {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 if title == "Accuracy" {
                                     isAccuracyTest = true
                                 } else {
@@ -115,6 +116,7 @@ struct HomeView: View {
                     
                     // Steak counter
                     Button(action: {
+                        UISelectionFeedbackGenerator().selectionChanged()
                         selectedTab = 1
                     }) {
                         VStack {
@@ -131,6 +133,7 @@ struct HomeView: View {
                     // Settings and dark mode buttons
                     HStack (spacing: 16) {
                         Button(action: {
+                            UISelectionFeedbackGenerator().selectionChanged()
                             usingMeters.toggle()
                         }) {
                             VStack {
@@ -145,6 +148,7 @@ struct HomeView: View {
                         
                         Button(action: {
                             // FIGURE THIS OUT
+                            UISelectionFeedbackGenerator().selectionChanged()
                         }) {
                             VStack {
                                 Image(systemName: "gearshape.fill")
@@ -159,6 +163,7 @@ struct HomeView: View {
                         }
                         
                         Button(action: {
+                            UISelectionFeedbackGenerator().selectionChanged()
                             isDarkMode.toggle()
                         }) {
                             VStack {

@@ -298,6 +298,7 @@ struct CameraView: View {
                     Spacer()
                     // Record button
                     Button(action: {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         instructionsVisible = false
                         cameraManager.recordingType = isAccuracyTest ? "accuracy" : "form"
                         cameraManager.toggleRecording()
