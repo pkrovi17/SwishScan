@@ -30,13 +30,12 @@ struct GridSquare: View {
                     .resizable()
                     .scaledToFit()
                     .foregroundColor(self.isUser ? .accentColor : Color("secondaryButtonText"))
-                    .frame(height: 60)
-                    .padding(.top)
+                    .frame(height: 64)
                 
                 Text(title)
                     .font(.headline)
                     .foregroundColor(self.isUser ? .accentColor : Color("secondaryButtonText"))
-                    .padding(.top, 8)
+                    .padding(.top, 12)
             }
             .frame(width: 160, height: 200)
             .background(self.isUser ? Color("buttonBackground") : Color("secondaryButtonBackground"))
@@ -48,13 +47,13 @@ struct GridSquare: View {
 
 // Grid of squares
 struct DatabaseView: View {
-    let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: -12), count: 2)
+    let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: -10), count: 2)
     
     @Binding var showResults: Bool
     @State private var dragOffset: CGFloat = 0
 
     var body: some View {
-        ZStack (alignment: .top){
+        ZStack(alignment: .top) {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 16) {
                     // Top two with 32 pix of top padding

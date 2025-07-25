@@ -46,7 +46,6 @@ struct MainView: View {
             appearance.configureWithOpaqueBackground()
             appearance.backgroundColor = UIColor(isDarkMode ? .black : .white)
             
-            // 🧽 Remove the top border line ("shadow image")
             appearance.shadowImage = nil
             appearance.shadowColor = .clear
             
@@ -83,94 +82,107 @@ struct HomeView: View {
                     Text("\(greetingAdjective ?? "Good") \(greetingTime).")
                         .font(.title)
                         .fontWeight(.regular)
-                        .padding(.top, 42)
                     Text("Want to get some practice in today?")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .padding(.top, -4)
                 }
+                .padding(.top, 32)
                 Spacer()
-                // Accuracy and Form buttons
-                HStack(spacing: 12) {
-                    ForEach(["Accuracy", "Form"], id: \.self) { title in
-                        Button(action: {
-                            if title == "Accuracy" {
-                                isAccuracyTest = true
-                            } else {
-                                isAccuracyTest = false
+                VStack {
+                    // Accuracy and Form buttons
+                    HStack(spacing: 16) {
+                        ForEach(["Accuracy", "Form"], id: \.self) { title in
+                            Button(action: {
+                                if title == "Accuracy" {
+                                    isAccuracyTest = true
+                                } else {
+                                    isAccuracyTest = false
+                                }
+                                showCamera = true
+                            }) {
+                                VStack {
+                                    Image(systemName: title == "Accuracy" ? "scope" : "scribble")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(height: 64)
+                                        .padding(.horizontal)
+                                    Text(title)
+                                        .bold()
+                                        .padding(.top, 12)
+                                }
+                                .frame(maxWidth: 160, minHeight: 200)
+                                .background(Color("buttonBackground"))
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
                             }
-                            showCamera = true
+                        }
+                    }
+                    
+                    // Steak counter
+                    Button(action: {
+                        selectedTab = 1
+                    }) {
+                        VStack {
+                            Text("99 Day Streak")
+                                .foregroundColor(Color("secondaryButtonText"))
+                                .bold()
+                        }
+                        .frame(maxWidth: 337, maxHeight: 60)
+//                        .padding(.vertical)
+                        .background(Color("secondaryButtonBackground"))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                    .padding(.vertical, 8)
+                    
+                    // Settings and dark mode buttons
+                    HStack (spacing: 16) {
+                        Button(action: {
+                            // find something for this
                         }) {
                             VStack {
-                                Image(systemName: title == "Accuracy" ? "scope" : "scribble")
+                                Image(systemName: "gearshape.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(height: 64)
-                                    .padding(.horizontal)
-                                Text(title)
-                                    .bold()
-                                    .padding(.top, 8)
+                                    .foregroundColor(Color("secondaryButtonText"))
+                                    .frame(height: 24)
                             }
-                            .frame(maxWidth: 120, minHeight: 160)
-                            .padding()
-                            .background(Color("buttonBackground"))
+                            .frame(maxWidth: 102, maxHeight: 60)
+                            .background(Color("secondaryButtonBackground"))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                        
+                        Button(action: {
+                            // FIGURE THIS OUT
+                        }) {
+                            VStack {
+                                Image(systemName: "gearshape.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundColor(Color("secondaryButtonText"))
+                                    .frame(height: 24)
+                            }
+                            .frame(maxWidth: 102, maxHeight: 60)
+                            .background(Color("secondaryButtonBackground"))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                        
+                        Button(action: {
+                            isDarkMode.toggle()
+                        }) {
+                            VStack {
+                                Image(systemName: isDarkMode ? "sun.max.fill" : "moon.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundColor(Color("secondaryButtonText"))
+                                    .frame(height: 24)
+                            }
+                            .frame(maxWidth: 102, maxHeight: 60)
+                            .background(Color("secondaryButtonBackground"))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                     }
                 }
-                .offset(y: -100)
-                
-                Button(action: {
-                    selectedTab = 1
-                }) {
-                    VStack {
-                        Text("99 Day Streak")
-                            .foregroundColor(Color("secondaryButtonText"))
-                            .bold()
-                    }
-                    .frame(maxWidth: 282, maxHeight: 36)
-                    .padding()
-                    .background(Color("secondaryButtonBackground"))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-                .offset(y: -96) // -100 + 4 for equal spacing
-                
-                // Settings and dark mode buttons
-                HStack (spacing: 12) {
-                    Button(action: {
-                        // find something for this
-                    }) {
-                        VStack {
-                            Image(systemName: "gearshape.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .foregroundColor(Color("secondaryButtonText"))
-                                .frame(height: 24)
-                        }
-                        .frame(maxWidth: 120, maxHeight: 36)
-                        .padding()
-                        .background(Color("secondaryButtonBackground"))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-                    .offset(y: -92) // -100 + 8 for equal spacing
-                    
-                    Button(action: {
-                        isDarkMode.toggle()
-                    }) {
-                        VStack {
-                            Image(systemName: isDarkMode ? "sun.max.fill" : "moon.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .foregroundColor(Color("secondaryButtonText"))
-                                .frame(height: 24)
-                        }
-                        .frame(maxWidth: 120, maxHeight: 36)
-                        .padding()
-                        .background(Color("secondaryButtonBackground"))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-                    .offset(y: -92) // -100 + 8 for equal spacing
-                }
+                .padding(.bottom, 94)
             }
             
             if showResults {
