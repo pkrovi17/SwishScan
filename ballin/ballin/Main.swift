@@ -32,7 +32,7 @@ struct MainView: View {
                     }
                 }
                 .tag(1)
-            DatabaseView()
+            DatabaseView(showResults: $showDatabaseResults)
                 .tabItem {
                     VStack {
                         Image(systemName: "person.fill")
@@ -53,6 +53,11 @@ struct MainView: View {
             UITabBar.appearance().standardAppearance = appearance
             UITabBar.appearance().scrollEdgeAppearance = appearance
         }
+        .onChange(of: isDarkMode) { oldValue, newValue in
+            UITabBar.appearance().scrollEdgeAppearance?.backgroundColor = UIColor(newValue ? .black : .white)
+            UITabBar.appearance().standardAppearance.backgroundColor = UIColor(newValue ? .black : .white)
+        }
+        .id(isDarkMode)
         .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 }
@@ -109,7 +114,7 @@ struct HomeView: View {
                             .frame(maxWidth: 120, minHeight: 140)
                             .padding()
                             .background(Color("buttonBackground"))
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                     }
                 }
@@ -126,7 +131,7 @@ struct HomeView: View {
                     .frame(maxWidth: 282, maxHeight: 36)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .offset(y: -96) // -100 + 4 for equal spacing
                 
@@ -145,7 +150,7 @@ struct HomeView: View {
                         .frame(maxWidth: 120, maxHeight: 36)
                         .padding()
                         .background(Color("secondaryButtonBackground"))
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     .offset(y: -92) // -100 + 8 for equal spacing
                     
@@ -162,7 +167,7 @@ struct HomeView: View {
                         .frame(maxWidth: 120, maxHeight: 36)
                         .padding()
                         .background(Color("secondaryButtonBackground"))
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     .offset(y: -92) // -100 + 8 for equal spacing
                 }
@@ -173,7 +178,7 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, minHeight: 600)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
-                    .cornerRadius(15)
+                    .cornerRadius(16)
                     .offset(y: dragOffset)
                     .gesture(
                         DragGesture()
@@ -264,6 +269,15 @@ struct ResultsView: View {
         // in documents,
         // if directory doesn't exist, exit
         // check if accuracy_ or form_ exist
+    }
+}
+
+
+struct ScaledButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.6 : 1.0)
+            .animation(.spring(response: 0.5, dampingFraction: 0.5), value: configuration.isPressed)
     }
 }
 
