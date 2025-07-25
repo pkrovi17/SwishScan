@@ -306,7 +306,7 @@ struct CameraView: View {
                             .fill(.red)
                             .frame(width: 70, height: 70)
                     }
-                    .buttonStyle(ScaledButtonStyle()) // <- This replaces the default fade with scale
+                    .buttonStyle(ScaledButtonStyle())
                     .scaleEffect(cameraManager.isRecording ? 0.9 : 1.0)
                     Spacer()
                     // Close camera
