@@ -14,11 +14,13 @@ struct GridSquare: View {
                 Image(systemName: imageName)
                     .resizable()
                     .scaledToFit()
+                    .foregroundColor(Color("secondaryButtonText"))
                     .frame(height: 60)
                     .padding(.top)
                 
                 Text(title)
                     .font(.headline)
+                    .foregroundColor(Color("secondaryButtonText"))
                     .padding(.top, 8)
             }
             .frame(width: 160, height: 200)
@@ -37,19 +39,24 @@ struct DatabaseView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 16) {
-                GridSquare(imageName: "person", title: "le bon bon")
-                GridSquare(imageName: "person", title: "Name")
-                GridSquare(imageName: "person", title: "Name")
-                GridSquare(imageName: "person", title: "Name")
-                GridSquare(imageName: "person", title: "Name")
-                GridSquare(imageName: "person", title: "Name")
-                GridSquare(imageName: "person", title: "Name")
-                GridSquare(imageName: "person", title: "Name")
-                GridSquare(imageName: "person", title: "Name")
-                GridSquare(imageName: "person", title: "Name")
+                GridSquare(imageName: "person.fill", title: "le bon bon")
+                    .padding(.top, 32)
+                GridSquare(imageName: "person.fill", title: "Name")
+                    .padding(.top, 32)
+                GridSquare(imageName: "person.fill", title: "Name")
+                GridSquare(imageName: "person.fill", title: "Name")
+                GridSquare(imageName: "person.fill", title: "Name")
+                GridSquare(imageName: "person.fill", title: "Name")
+                GridSquare(imageName: "person.fill", title: "Name")
+                GridSquare(imageName: "person.fill", title: "Name")
+                GridSquare(imageName: "person.fill", title: "Name")
+                    .padding(.bottom, 32)
+                GridSquare(imageName: "person.fill", title: "Name")
+                    .padding(.bottom, 32)
             }
             .padding()
         }
+        .padding(.bottom, 8)
     }
 }
 

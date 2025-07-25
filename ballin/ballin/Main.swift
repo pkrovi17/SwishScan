@@ -42,7 +42,16 @@ struct MainView: View {
                 .tag(2)
         }
         .onAppear() {
-            UITabBar.appearance().backgroundColor = UIColor.systemBackground
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = UIColor(isDarkMode ? .black : .white)
+            
+            // 🧽 Remove the top border line ("shadow image")
+            appearance.shadowImage = nil
+            appearance.shadowColor = .clear
+            
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
         }
         .preferredColorScheme(isDarkMode ? .dark : .light)
     }

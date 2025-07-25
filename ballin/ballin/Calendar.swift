@@ -138,7 +138,7 @@ struct CalendarViewRepresentable: UIViewRepresentable {
     
     private func makeContent() -> CalendarViewContent {
         // Setting endpoints for shown dates
-        let startDate = calendar.date(from: DateComponents(year: 2025, month: 7, day: 1)) ?? Date() // SET THIS TO JULY 1 2025 WHEN DONE
+        let startDate = calendar.date(from: DateComponents(year: 2024, month: 7, day: 1)) ?? Date() // SET THIS TO JULY 1 2025 WHEN DONE
         let endDate = Date()
         
         return CalendarViewContent(
@@ -322,6 +322,6 @@ struct CalendarViewWorking: View {
     
     var body: some View {
         CalendarView(markedDates: markedDates, showResults: $showResults)
-            .padding()
+            .padding(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
     }
 }
