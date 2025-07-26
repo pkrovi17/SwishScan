@@ -287,6 +287,7 @@ struct CameraView: View {
                     // Attach photos
                     Button(action: {
                         showPicker = true
+                        UISelectionFeedbackGenerator().selectionChanged()
                     }) {
                         Image(systemName: "square.on.square")
                             .resizable()
@@ -319,6 +320,7 @@ struct CameraView: View {
                     Spacer()
                     // Close camera
                     Button(action: {
+                        UISelectionFeedbackGenerator().selectionChanged()
                         dismiss()
                     }) {
                         Image(systemName: "xmark")

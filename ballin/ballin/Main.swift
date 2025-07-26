@@ -23,7 +23,7 @@ struct MainView: View {
                 .tag(0)
             CalendarViewWorking(showResults: $showCalendarResults)
                 .tabItem {
-                    Image(systemName: "clock.fill")
+                    Image(systemName: "calendar")
                     Text("Archive")
                 }
                 .tag(1)
@@ -67,6 +67,7 @@ struct HomeView: View {
     @State private var greetingTime = "night"
     
     @Binding var showResults: Bool
+    @State private var showSetting: String = "none"
     @State private var dragOffset: CGFloat = 0
     
     var body: some View {
@@ -89,13 +90,13 @@ struct HomeView: View {
                     HStack(spacing: 16) {
                         ForEach(["Accuracy", "Form"], id: \.self) { title in
                             Button(action: {
-                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 if title == "Accuracy" {
                                     isAccuracyTest = true
                                 } else {
                                     isAccuracyTest = false
                                 }
                                 showCamera = true
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                             }) {
                                 VStack {
                                     Image(systemName: title == "Accuracy" ? "scope" : "scribble")
@@ -116,8 +117,8 @@ struct HomeView: View {
                     
                     // Steak counter
                     Button(action: {
-                        UISelectionFeedbackGenerator().selectionChanged()
                         selectedTab = 1
+                        UISelectionFeedbackGenerator().selectionChanged()
                     }) {
                         VStack {
                             Text("99 Day Streak")
@@ -133,13 +134,14 @@ struct HomeView: View {
                     // Settings and dark mode buttons
                     HStack (spacing: 16) {
                         Button(action: {
+                            showSetting = "units"
                             UISelectionFeedbackGenerator().selectionChanged()
-                            usingMeters.toggle()
                         }) {
                             VStack {
-                                Text(usingMeters ? "ms" : "yds")
+                                Image(systemName: "ruler.fill")
+                                    .resizable()
                                     .foregroundColor(Color("secondaryButtonText"))
-                                    .bold()
+                                    .frame(width: 30, height: 24)
                             }
                             .frame(maxWidth: 101.33, maxHeight: 60)
                             .background(Color("secondaryButtonBackground"))
@@ -147,11 +149,11 @@ struct HomeView: View {
                         }
                         
                         Button(action: {
-                            // FIGURE THIS OUT
+                            showSetting = "alarm"
                             UISelectionFeedbackGenerator().selectionChanged()
                         }) {
                             VStack {
-                                Image(systemName: "gearshape.fill")
+                                Image(systemName: "alarm.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .foregroundColor(Color("secondaryButtonText"))
@@ -163,8 +165,8 @@ struct HomeView: View {
                         }
                         
                         Button(action: {
-                            UISelectionFeedbackGenerator().selectionChanged()
                             isDarkMode.toggle()
+                            UISelectionFeedbackGenerator().selectionChanged()
                         }) {
                             VStack {
                                 Image(systemName: isDarkMode ? "sun.max.fill" : "moon.fill")
@@ -222,6 +224,59 @@ struct HomeView: View {
                     )
                     .transition(.move(edge: .bottom))
                     .animation(.easeInOut, value: showResults)
+            }
+            
+            if showSetting != "none" {
+                Group {
+                    if showSetting == "units" {
+                        Text("Units")
+                    } else if showSetting == "alarm" {
+                        Text("Alarm")
+                    }
+                }
+                .frame(width: 336, height: 120)
+                .background(Color("secondaryButtonBackground"))
+                .cornerRadius(16)
+                .offset(y: dragOffset + 261)
+                .onAppear {
+                    dragOffset = UIScreen.main.bounds.height
+                    withAnimation(.interpolatingSpring(stiffness: 200, damping: 56)) {
+                        dragOffset = 0
+                    }
+                }
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            if value.translation.height > 0 {
+                                dragOffset = value.translation.height
+                            }
+                        }
+                        .onEnded { value in
+                            let dragDistance = value.translation.height
+                            let predictedDistance = value.predictedEndTranslation.height
+                            let dragVelocity = predictedDistance - dragDistance
+                            
+                            let shouldDismissByDistance = dragDistance > 50
+                            let shouldDismissByVelocity = dragVelocity > 150
+                            
+                            if shouldDismissByDistance || shouldDismissByVelocity {
+                                withAnimation(.interpolatingSpring(stiffness: 500, damping: 50)) {
+                                    dragOffset = UIScreen.main.bounds.height
+                                }
+
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    showSetting = "none"
+                                    dragOffset = 0
+                                }
+                            } else {
+                                withAnimation {
+                                    dragOffset = 0
+                                }
+                            }
+                        }
+                )
+                .transition(.move(edge: .bottom))
+                .animation(.easeInOut, value: showResults)
             }
         }
         .fullScreenCover(isPresented: $showCamera) {
