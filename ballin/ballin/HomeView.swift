@@ -6,7 +6,8 @@ struct HomeView: View {
     @Binding var selectedTab: Int
     @State private var showCamera = false
 
-    @AppStorage("usingMeters") var usingMeters = false
+    @AppStorage("units") var units: Units = .none
+    @AppStorage("notificationTiming") var notificationTiming: ReminderFrequency = .none
     
     @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
@@ -175,9 +176,9 @@ struct HomeView: View {
             if showSetting != "none" {
                 Group {
                     if showSetting == "units" {
-                        Text("Units")
+                        UnitsSettingView(units: $units)
                     } else if showSetting == "alarm" {
-                        Text("Alarm")
+                        NotificationsSettingView(reminderFrequency: $notificationTiming)
                     }
                 }
                 .frame(width: 336, height: 120)
@@ -250,12 +251,12 @@ struct HomeView: View {
 }
 
 
-struct ReminderSettingView: View {
-    @State private var reminderFrequency: ReminderFrequency = .none
+struct NotificationsSettingView: View {
+    @Binding var reminderFrequency: ReminderFrequency
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Remind me to do this?")
+            Text("Notifications")
                 .font(.headline)
             
             Picker("Reminder Frequency", selection: $reminderFrequency) {
@@ -265,13 +266,39 @@ struct ReminderSettingView: View {
             }
             .pickerStyle(.segmented)
         }
-        .padding()
+        .padding(EdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 28))
+    }
+}
+
+
+struct UnitsSettingView: View {
+    @Binding var units: Units
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Units")
+                .font(.headline)
+            
+            Picker("Units", selection: $units) {
+                ForEach(Units.allCases, id: \.self) { unit in
+                    Text(unit.rawValue).tag(unit)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(EdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 28))
     }
 }
 
 
 enum ReminderFrequency: String, CaseIterable {
-    case none = "No"
+    case none = "None"
     case daily = "Daily"
     case weekly = "Weekly"
+}
+
+
+enum Units: String, CaseIterable {
+    case none = "Yards"
+    case daily = "Meters"
 }
