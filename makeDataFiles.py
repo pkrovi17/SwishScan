@@ -1,15 +1,4 @@
-"""
-1. Get player id's from names
-2. Get a list of 50 IDs
-3. Get the shot data per player
-4. Save the data in a JSON file
-
-JSON FILE FORMAT
-player id
-player name
-shot list
-"""
-
+import json
 from nba_api.stats.endpoints import ShotChartDetail
 from nba_api.stats.static import players
 
@@ -66,6 +55,7 @@ def getSeasonShots(player_id: int, season: str = '2024-25') -> list[dict]:
     return shotlog.get_data_frames()[0]
 
 if __name__ == "__main__":
+    # For each player in the file, get their shot data and save it as a JSON file
     for name in getPlayerNamesFromFile('data/players.txt'):
         player_id = getPlayerID(name)
         if player_id:
@@ -75,20 +65,25 @@ if __name__ == "__main__":
             shots = shots[shots['LOC_Y'].between(0, 564)].copy()
             shots['LOC_Y'] = shots['LOC_Y'] - 282
 
-            print(shots)
-            break
+            json_data = {
+                "name": name,
+                "shots": shots.to_dict(orient='records')
+            }
+
+            # Saves as player_id.json to prevent accent file naming issues
+            with open(f"data/{player_id}.json", 'w') as f:
+                json.dump(json_data, f, indent=4)
 
 """
 {
-    player_id: ####,
-    player_name: "Player Name",
+    name: "Player Name",
     shots: [
         {
-            "EVENT_TYPE": "Jump Shot",
-            "SHOT_ZONE_BASIC": "Mid-Range",
-            "SHOT_ZONE_AREA": "Left Side Center",
-            "SHOT_ZONE_RANGE": "16-24 ft.",
-            "SHOT_DISTANCE": 18.0,
+            -- "EVENT_TYPE": "Jump Shot",
+            -- "SHOT_ZONE_BASIC": "Mid-Range",
+            -- "SHOT_ZONE_AREA": "Left Side Center",
+            -- "SHOT_ZONE_RANGE": "16-24 ft.",
+            -- "SHOT_DISTANCE": 18.0,
             "LOC_X": -150.0,
             "LOC_Y": 200.0,
             "SHOT_MADE_FLAG": 1
