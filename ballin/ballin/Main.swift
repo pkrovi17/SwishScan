@@ -24,7 +24,7 @@ struct MainView: View {
             CalendarViewWorking(showResults: $showCalendarResults)
                 .tabItem {
                     Image(systemName: "calendar")
-                    Text("Archive")
+                    Text("Calendar")
                 }
                 .tag(1)
             DatabaseView(showResults: $showDatabaseResults)

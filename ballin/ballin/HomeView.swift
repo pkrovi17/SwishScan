@@ -256,7 +256,7 @@ struct NotificationsSettingView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Notifications")
+            Text("Reminders")
                 .font(.headline)
             
             Picker("Reminder Frequency", selection: $reminderFrequency) {
