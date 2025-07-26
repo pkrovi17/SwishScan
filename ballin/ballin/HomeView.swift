@@ -12,6 +12,7 @@ struct HomeView: View {
     @State private var isAccuracyTest = false
     @State private var greetingAdjective: String?
     @State private var greetingTime = "night"
+    @State private var greetingMessage = "le bon-bon is my king"
     
     @Binding var showResults: Bool
     @State private var showSetting: String = "none"
@@ -25,7 +26,7 @@ struct HomeView: View {
                     Text("\(greetingAdjective ?? "Good") \(greetingTime).")
                         .font(.title)
                         .fontWeight(.regular)
-                    Text("Want to get some practice in today?")
+                    Text(greetingMessage)
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .padding(.top, -4)
@@ -100,7 +101,7 @@ struct HomeView: View {
                             UISelectionFeedbackGenerator().selectionChanged()
                         }) {
                             VStack {
-                                Image(systemName: "alarm.fill")
+                                Image(systemName: "bell.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .foregroundColor(Color("secondaryButtonText"))
@@ -244,8 +245,11 @@ struct HomeView: View {
             }
             
             // Get random adjective
-            let items = ["Nice", "Good", "Beautiful"]
-            greetingAdjective = items.randomElement()
+            let times = ["Nice", "Good", "Beautiful"]
+            let messages = ["Want to get some practice in today?", "You in for some work today?", "Want to get some shots up today?"]
+            
+            greetingAdjective = times.randomElement()
+            greetingMessage = messages.randomElement()!
         }
     }
 }
