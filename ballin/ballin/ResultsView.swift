@@ -49,65 +49,71 @@ struct ResultsView: View {
             .font(.title)
             .fontWeight(.bold)
             .padding(.horizontal)
+            .padding(.top, 24)
             .frame(width: 336, alignment: .leading)
-
-            if !hasAccuracy && !hasForm {
-            } else {
-                if hasAccuracy {
-                    // Rectangle to hold half-court accuracy data
-                    // DATA IS UP TO 564 BUT RECTANGLE HAS HEIGHT OF 300
-                    let inset: CGFloat = 12 // space between lines and outer border
-
-                    ZStack {
-                        // Court perimeter (adjusted for inset)
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color("secondaryButtonBackground"))
-                            .stroke(Color("secondaryButtonBackground"), lineWidth: 4)
-
-                        // 3-point arc (center adjusted upward by inset)
-                        Path { path in
-                            let center = CGPoint(x: 170, y: 308 - inset)
-                            let radius: CGFloat = 150 - inset
-
-                            path.addArc(center: center,
-                                        radius: radius,
-                                        startAngle: .degrees(214.5),
-                                        endAngle: .degrees(325.5),
-                                        clockwise: false)
+            Spacer()
+            VStack(spacing: 16) {
+                if !hasAccuracy && !hasForm {
+                } else {
+                    if hasAccuracy {
+                        // Rectangle to hold half-court accuracy data
+                        // DATA IS UP TO 564 BUT RECTANGLE HAS HEIGHT OF 300
+                        let inset: CGFloat = 12 // space between lines and outer border
+                        
+                        ZStack {
+                            // Court perimeter (adjusted for inset)
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color("secondaryButtonBackground"))
+                                .stroke(Color("secondaryButtonBackground"), lineWidth: 4)
+                            
+                            // 3-point arc (center adjusted upward by inset)
+                            Path { path in
+                                let center = CGPoint(x: 170, y: 308 - inset)
+                                let radius: CGFloat = 150 - inset
+                                
+                                path.addArc(center: center,
+                                            radius: radius,
+                                            startAngle: .degrees(214.5),
+                                            endAngle: .degrees(325.5),
+                                            clockwise: false)
+                            }
+                            .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                            
+                            // 3-point line sides (inset applied to x and y)
+                            Path { path in
+                                path.move(to: CGPoint(x: 44 + inset, y: 220))
+                                path.addLine(to: CGPoint(x: 44 + inset, y: 320 - inset))
+                                
+                                path.move(to: CGPoint(x: 296 - inset, y: 220))
+                                path.addLine(to: CGPoint(x: 296 - inset, y: 320 - inset))
+                            }
+                            .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                            
+                            // Key
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(.clear)
+                                .stroke(Color("secondaryButtonText"), lineWidth: 4)
+                                .frame(width: 96, height: 114)
+                                .offset(y: 103 - inset)
+                            
+                            // Free throw circle
+                            Circle()
+                                .fill(.clear)
+                                .stroke(Color("secondaryButtonText"), lineWidth: 4)
+                                .frame(width: 72, height: 72)
+                                .offset(y: 46 - inset)
                         }
-                        .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-
-                        // 3-point line sides (inset applied to x and y)
-                        Path { path in
-                            path.move(to: CGPoint(x: 44 + inset, y: 220))
-                            path.addLine(to: CGPoint(x: 44 + inset, y: 320 - inset))
-
-                            path.move(to: CGPoint(x: 296 - inset, y: 220))
-                            path.addLine(to: CGPoint(x: 296 - inset, y: 320 - inset))
-                        }
-                        .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-
-                        // Key
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(.clear)
-                            .stroke(Color("secondaryButtonText"), lineWidth: 4)
-                            .frame(width: 96, height: 114)
-                            .offset(y: 103 - inset)
-
-                        // Free throw circle
-                        Circle()
-                            .fill(.clear)
-                            .stroke(Color("secondaryButtonText"), lineWidth: 4)
-                            .frame(width: 72, height: 72)
-                            .offset(y: 46 - inset)
-                    }
-                    .frame(width: 340, height: 320)
-                    .padding(.top)
-
-                }
-                if hasForm {
-                    Text("Form data will appear here.")
+                        .frame(width: UIScreen.main.bounds.width - 64, height: 320)
                         .padding(.top)
+                    }
+                    if hasForm {
+                        VStack {
+                            Text("Form data will appear here.")
+                        }
+                        .frame(width: UIScreen.main.bounds.width - 64, height: 150)
+                        .background((Color("secondaryButtonBackground")))
+                        .cornerRadius(16)
+                    }
                 }
             }
         }

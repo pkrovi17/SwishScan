@@ -139,8 +139,9 @@ struct HomeView: View {
                 ResultsView(input: .date(Date())) // fill in with real date
                     .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                     .padding()
-                    .background(Color("secondaryButtonBackground"))
+                    .background(Color("inversePrimary"))
                     .cornerRadius(16)
+                    .shadow(color: .gray.opacity(0.2), radius: 50, x: 0, y: 0)
                     .offset(y: dragOffset)
                     .gesture(
                         DragGesture()
