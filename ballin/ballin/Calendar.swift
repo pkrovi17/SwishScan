@@ -40,52 +40,58 @@ struct CalendarView: View {
                 )
             }
             
-            if showResults {
-                ResultsView(input: .date(Date())) // fill in with real date
-                    .frame(width: UIScreen.main.bounds.width - 64, height: 640)
-                    .padding()
-                    .background(Color("secondaryButtonBackground"))
-                    .cornerRadius(16)
-                    .offset(y: dragOffset - 3)
-                    .onAppear {
-                        dragOffset = UIScreen.main.bounds.height
-                        withAnimation(.interpolatingSpring(stiffness: 250, damping: 24)) {
-                            dragOffset = 0
-                        }
+            if showResults, let selectedDate {
+                Group {
+                    if isDateMarked(selectedDate) {
+                        ResultsView(input: .date(selectedDate))
+                    } else {
+                        Text("No date for this day.")
                     }
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                if value.translation.height > 0 {
-                                    dragOffset = value.translation.height
-                                }
+                }
+                .frame(width: UIScreen.main.bounds.width - 64, height: 640)
+                .padding()
+                .background(Color("secondaryButtonBackground"))
+                .cornerRadius(16)
+                .offset(y: dragOffset - 3)
+                .onAppear {
+                    dragOffset = UIScreen.main.bounds.height
+                    withAnimation(.interpolatingSpring(stiffness: 250, damping: 24)) {
+                        dragOffset = 0
+                    }
+                }
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            if value.translation.height > 0 {
+                                dragOffset = value.translation.height
                             }
-                            .onEnded { value in
-                                let dragDistance = value.translation.height
-                                let predictedDistance = value.predictedEndTranslation.height
-                                let dragVelocity = predictedDistance - dragDistance
-                                
-                                let shouldDismissByDistance = dragDistance > 500
-                                let shouldDismissByVelocity = dragVelocity > 150
-                                
-                                if shouldDismissByDistance || shouldDismissByVelocity {
-                                    withAnimation(.interpolatingSpring(stiffness: 800, damping: 100)) {
-                                        dragOffset = UIScreen.main.bounds.height
-                                    }
+                        }
+                        .onEnded { value in
+                            let dragDistance = value.translation.height
+                            let predictedDistance = value.predictedEndTranslation.height
+                            let dragVelocity = predictedDistance - dragDistance
+                            
+                            let shouldDismissByDistance = dragDistance > 500
+                            let shouldDismissByVelocity = dragVelocity > 150
+                            
+                            if shouldDismissByDistance || shouldDismissByVelocity {
+                                withAnimation(.interpolatingSpring(stiffness: 800, damping: 100)) {
+                                    dragOffset = UIScreen.main.bounds.height
+                                }
 
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        showResults = false
-                                        dragOffset = 0
-                                    }
-                                } else {
-                                    withAnimation {
-                                        dragOffset = 0
-                                    }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    showResults = false
+                                    dragOffset = 0
+                                }
+                            } else {
+                                withAnimation {
+                                    dragOffset = 0
                                 }
                             }
-                    )
-                    .transition(.move(edge: .bottom))
-                    .animation(.easeInOut, value: showResults)
+                        }
+                )
+                .transition(.move(edge: .bottom))
+                .animation(.easeInOut, value: showResults)
             }
         }
     }
