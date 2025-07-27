@@ -41,7 +41,7 @@ struct CalendarView: View {
             }
             
             if showResults {
-                ResultsView(day: Date()) // fill in with real date
+                ResultsView(input: .date(Date())) // fill in with real date
                     .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
@@ -200,41 +200,40 @@ final class MonthHeaderView: UIView {
 
     private let backgroundView = UIView()
     private let label = UILabel()
-    private let bottomSpacer = UIView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        // Background setup
         backgroundView.translatesAutoresizingMaskIntoConstraints = false
         backgroundView.backgroundColor = UIColor(named: "secondaryButtonBackground")
         backgroundView.layer.cornerRadius = 16
         backgroundView.clipsToBounds = true
 
+        // Label setup
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
         label.textColor = UIColor(named: "secondaryButtonText")
 
-        bottomSpacer.translatesAutoresizingMaskIntoConstraints = false
-
+        // Add subviews
         addSubview(backgroundView)
-        addSubview(label)
-        addSubview(bottomSpacer)
+        backgroundView.addSubview(label)
 
+        // Constraints
         NSLayoutConstraint.activate([
+            // BackgroundView hugs the content
             backgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
             backgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
             backgroundView.topAnchor.constraint(equalTo: topAnchor),
-            backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            
+            // Bottom spacing OUTSIDE background
+            backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
 
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-            label.topAnchor.constraint(equalTo: topAnchor, constant: 16),
-
-            bottomSpacer.topAnchor.constraint(equalTo: label.bottomAnchor),
-            bottomSpacer.leadingAnchor.constraint(equalTo: leadingAnchor),
-            bottomSpacer.trailingAnchor.constraint(equalTo: trailingAnchor),
-            bottomSpacer.bottomAnchor.constraint(equalTo: bottomAnchor),
-            bottomSpacer.heightAnchor.constraint(equalToConstant: 50) // <-- extra spacing here
+            label.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 16),
+            label.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: 16),
+            label.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor, constant: -16),
+            label.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -12),
         ])
     }
 
@@ -246,7 +245,6 @@ final class MonthHeaderView: UIView {
         label.text = viewModel.text
     }
 }
-
 
 
 extension MonthHeaderView: CalendarItemViewRepresentable {
@@ -349,4 +347,9 @@ struct CalendarViewWorking: View {
         CalendarView(markedDates: markedDates, showResults: $showResults)
             .padding(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
     }
+}
+
+#Preview {
+    @Previewable @State var asd = false
+    CalendarViewWorking(showResults: $asd)
 }
