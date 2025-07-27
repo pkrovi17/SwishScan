@@ -112,7 +112,7 @@ struct DatabaseView: View {
                 ResultsView(input: .player(selectedPlayer)) // fill in with real date
                     .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                     .padding()
-                    .background(Color("secondaryButtonBackground"))
+                    .background(.white)
                     .cornerRadius(16)
                     .offset(y: dragOffset + 19)
                     .onAppear {

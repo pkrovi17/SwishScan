@@ -45,12 +45,12 @@ struct CalendarView: View {
                     if isDateMarked(selectedDate) {
                         ResultsView(input: .date(selectedDate))
                     } else {
-                        Text("No date for this day.")
+                        Text("No data for this day.")
                     }
                 }
                 .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                 .padding()
-                .background(Color("secondaryButtonBackground"))
+                .background(.white)
                 .cornerRadius(16)
                 .offset(y: dragOffset - 3)
                 .onAppear {
