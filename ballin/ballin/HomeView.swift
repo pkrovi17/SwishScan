@@ -30,8 +30,10 @@ struct HomeView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .padding(.top, -4)
+                        
                 }
                 .padding(.top, 32)
+                .frame(maxWidth: 336, alignment: .leading)
                 Spacer()
                 VStack {
                     // Accuracy and Form buttons
