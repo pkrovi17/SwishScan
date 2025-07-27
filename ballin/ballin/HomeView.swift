@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 
 struct HomeView: View {
@@ -227,6 +228,15 @@ struct HomeView: View {
                 )
                 .transition(.move(edge: .bottom))
                 .animation(.easeInOut, value: showResults)
+                .onChange(of: notificationTiming) { oldValue, newValue in
+                    if oldValue == .none {
+                        requestNotificationPermission { allowed in
+                            if allowed {
+                                scheduleNotification()
+                            }
+                        }
+                    }
+                }
             }
         }
         .fullScreenCover(isPresented: $showCamera) {
@@ -253,6 +263,43 @@ struct HomeView: View {
             greetingAdjective = times.randomElement()
             greetingMessage = messages.randomElement()!
         }
+    }
+    
+    func requestNotificationPermission(completion: @escaping (Bool) -> Void) {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            DispatchQueue.main.async {
+                completion(granted)
+            }
+        }
+    }
+    
+    func scheduleNotification() {
+        let center = UNUserNotificationCenter.current()
+        
+        // Remove all previous notifications to avoid duplicates
+        center.removeAllPendingNotificationRequests()
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Time to Practice!"
+        content.body = "Open the app and get some basketball reps in."
+        content.sound = .default
+
+        let frequency: Double
+        if notificationTiming == .weekly {
+            frequency = 604800 // seconds in a week
+        } else {
+            frequency = 86400 // seconds in a day
+        }
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: frequency, repeats: true)
+        
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: trigger
+        )
+
+        center.add(request)
     }
 }
 
