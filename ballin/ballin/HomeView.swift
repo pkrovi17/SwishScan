@@ -133,7 +133,7 @@ struct HomeView: View {
             }
             
             if showResults {
-                ResultsView(day: Date()) // fill in with real date
+                ResultsView(input: .date(Date())) // fill in with real date
                     .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
@@ -187,7 +187,7 @@ struct HomeView: View {
                 .cornerRadius(16)
                 .offset(y: dragOffset + 261)
                 .onAppear {
-                    dragOffset = UIScreen.main.bounds.height
+                    dragOffset = 200
                     withAnimation(.interpolatingSpring(stiffness: 200, damping: 56)) {
                         dragOffset = 0
                     }
@@ -209,7 +209,7 @@ struct HomeView: View {
                             
                             if shouldDismissByDistance || shouldDismissByVelocity {
                                 withAnimation(.interpolatingSpring(stiffness: 500, damping: 50)) {
-                                    dragOffset = UIScreen.main.bounds.height
+                                    dragOffset = 200
                                 }
 
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

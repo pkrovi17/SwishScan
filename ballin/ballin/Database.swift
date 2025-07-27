@@ -8,13 +8,15 @@ struct GridSquare: View {
     let isUser: Bool
     
     @Binding var showResults: Bool
+    @Binding var selectedPlayer: String
     @State private var tapped = false
     
-    init(imageName: String, title: String, isUser: Bool = false, showResults: Binding<Bool>) {
+    init(imageName: String, title: String, isUser: Bool = false, showResults: Binding<Bool>, selectedPlayer: Binding<String>) {
         self.imageName = imageName
         self.title = title
         self.isUser = isUser
         self._showResults = showResults
+        self._selectedPlayer = selectedPlayer
     }
     
     var body: some View {
@@ -24,6 +26,7 @@ struct GridSquare: View {
             withAnimation(.easeInOut(duration: 0.5)) {
                 tapped = false
             }
+            selectedPlayer = title
             showResults = true
         }) {
             VStack {
@@ -64,43 +67,38 @@ struct DatabaseView: View {
     
     @Binding var showResults: Bool
     @State private var dragOffset: CGFloat = 0
+    @State private var selectedPlayer = ""
 
     var body: some View {
         ZStack(alignment: .top) {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 16) {
-                    // Top two with 32 pix of top padding
-                    GridSquare(imageName: "person.fill", title: "You", isUser: true, showResults: $showResults)
-                        .padding(.top, 32)
-                    GridSquare(imageName: "person.fill", title: "Giannis Antetokounmpo", showResults: $showResults)
-                        .padding(.top, 32)
-                    GridSquare(imageName: "person.fill", title: "Devin Booker", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Jaylen Brown", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Stephen Curry", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Luka Dončić", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Kevin Durant", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Anthony Edwards", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Joel Embiid", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Shai Gilgeous-Alexander", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Tyrese Haliburton", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Chet Holmgren", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Kyrie Irving", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "LeBron James", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Nikola Jokić", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Jaren Jackson Jr.", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Donovan Mitchell", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Jamal Murray", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Kristaps Porziņģis", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Austin Reaves", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Alperen Şengün", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Jayson Tatum", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Fred VanVleet", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Victor Wembanyama", showResults: $showResults)
-                    GridSquare(imageName: "person.fill", title: "Zion Williamson", showResults: $showResults)
-                        .padding(.bottom, 32)
-                    GridSquare(imageName: "person.fill", title: "Trae Young", showResults: $showResults)
-                        .padding(.bottom, 32)
-                    // Top two with 32 pix of bottom padding
+                    square("You", isUser: true, top: true)
+                    square("Giannis Antetokounmpo", top: true)
+                    square("Devin Booker")
+                    square("Jaylen Brown")
+                    square("Stephen Curry")
+                    square("Luka Dončić")
+                    square("Kevin Durant")
+                    square("Anthony Edwards")
+                    square("Joel Embiid")
+                    square("Shai Gilgeous-Alexander")
+                    square("Tyrese Haliburton")
+                    square("Chet Holmgren")
+                    square("Kyrie Irving")
+                    square("LeBron James")
+                    square("Nikola Jokić")
+                    square("Jaren Jackson Jr.")
+                    square("Donovan Mitchell")
+                    square("Jamal Murray")
+                    square("Kristaps Porziņģis")
+                    square("Austin Reaves")
+                    square("Alperen Şengün")
+                    square("Jayson Tatum")
+                    square("Fred VanVleet")
+                    square("Victor Wembanyama")
+                    square("Zion Williamson", bottom: true)
+                    square("Trae Young", bottom: true)
                 }
                 .padding()
             }
@@ -111,7 +109,7 @@ struct DatabaseView: View {
                 .ignoresSafeArea(edges: .top)
             
             if showResults {
-                ResultsView(day: Date()) // fill in with real date
+                ResultsView(input: .player(selectedPlayer)) // fill in with real date
                     .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                     .padding()
                     .background(Color("secondaryButtonBackground"))
@@ -158,5 +156,13 @@ struct DatabaseView: View {
                     .animation(.easeInOut, value: showResults)
             }
         }
+    }
+}
+
+extension DatabaseView {
+    private func square(_ title: String, isUser: Bool = false, imageName: String = "person.fill", top: Bool = false, bottom: Bool = false) -> some View {
+        GridSquare(imageName: imageName, title: title, isUser: isUser, showResults: $showResults, selectedPlayer: $selectedPlayer)
+            .padding(.top, top ? 32 : 0)
+            .padding(.bottom, bottom ? 32 : 0)
     }
 }
