@@ -188,7 +188,7 @@ struct HomeView: View {
                 .offset(y: dragOffset + 261)
                 .onAppear {
                     dragOffset = 200
-                    withAnimation(.interpolatingSpring(stiffness: 200, damping: 56)) {
+                    withAnimation(.interpolatingSpring(stiffness: 400, damping: 56)) {
                         dragOffset = 0
                     }
                 }
@@ -208,7 +208,7 @@ struct HomeView: View {
                             let shouldDismissByVelocity = dragVelocity > 150
                             
                             if shouldDismissByDistance || shouldDismissByVelocity {
-                                withAnimation(.interpolatingSpring(stiffness: 500, damping: 50)) {
+                                withAnimation(.interpolatingSpring(stiffness: 700, damping: 50)) {
                                     dragOffset = 200
                                 }
 

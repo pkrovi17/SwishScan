@@ -223,8 +223,12 @@ final class MonthHeaderView: UIView {
         label.textColor = UIColor(named: "secondaryButtonText")
 
         // Add subviews
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+
         addSubview(backgroundView)
         backgroundView.addSubview(label)
+
 
         // Constraints
         NSLayoutConstraint.activate([
