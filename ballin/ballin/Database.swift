@@ -65,6 +65,63 @@ struct GridSquare: View {
 struct DatabaseView: View {
     let columns: [GridItem] = Array(repeating: .init(.flexible(), spacing: -10), count: 2)
     
+    var resultsOverlay: some View {
+        ZStack {
+            // Dim background — fade in + optional slide
+            Color.gray
+                .opacity(Double(1 - (dragOffset / UIScreen.main.bounds.height)) * 0.1)
+                .ignoresSafeArea()
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.3), value: showResults)
+
+            // Slide-in ResultsView
+            ResultsView(input: .player(selectedPlayer))
+                .frame(width: UIScreen.main.bounds.width - 64, height: 640)
+                .padding()
+                .background(Color("inversePrimary"))
+                .cornerRadius(16)
+                .offset(y: dragOffset)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            if value.translation.height > 0 {
+                                dragOffset = value.translation.height
+                            }
+                        }
+                        .onEnded { value in
+                            let dragDistance = value.translation.height
+                            let predictedDistance = value.predictedEndTranslation.height
+                            let dragVelocity = predictedDistance - dragDistance
+
+                            let shouldDismissByDistance = dragDistance > 500
+                            let shouldDismissByVelocity = dragVelocity > 150
+
+                            if shouldDismissByDistance || shouldDismissByVelocity {
+                                withAnimation(.interpolatingSpring(stiffness: 800, damping: 100)) {
+                                    dragOffset = UIScreen.main.bounds.height
+                                }
+
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    showResults = false
+                                    dragOffset = 0
+                                }
+                            } else {
+                                withAnimation {
+                                    dragOffset = 0
+                                }
+                            }
+                        }
+                )
+                .onAppear {
+                    dragOffset = UIScreen.main.bounds.height
+                    withAnimation(.interpolatingSpring(stiffness: 250, damping: 24)) {
+                        dragOffset = 0
+                    }
+                }
+                .transition(.move(edge: .bottom))
+        }
+    }
+    
     @Binding var showResults: Bool
     @State private var dragOffset: CGFloat = 0
     @State private var selectedPlayer = ""
@@ -108,56 +165,14 @@ struct DatabaseView: View {
                 .fill(Color(.systemBackground))
                 .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60)
                 .ignoresSafeArea(edges: .top)
-            
-            if showResults {
-                ResultsView(input: .player(selectedPlayer)) // fill in with real date
-                    .frame(width: UIScreen.main.bounds.width - 64, height: 640)
-                    .padding()
-                    .background(Color("inversePrimary"))
-                    .cornerRadius(16)
-                    .shadow(color: .gray.opacity(0.4), radius: 200, x: 0, y: 0)
-                    .offset(y: dragOffset + 19)
-                    .onAppear {
-                        dragOffset = UIScreen.main.bounds.height
-                        withAnimation(.interpolatingSpring(stiffness: 250, damping: 24)) {
-                            dragOffset = 0
-                        }
-                    }
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                if value.translation.height > 0 {
-                                    dragOffset = value.translation.height
-                                }
-                            }
-                            .onEnded { value in
-                                let dragDistance = value.translation.height
-                                let predictedDistance = value.predictedEndTranslation.height
-                                let dragVelocity = predictedDistance - dragDistance
-                                
-                                let shouldDismissByDistance = dragDistance > 500
-                                let shouldDismissByVelocity = dragVelocity > 150
-                                
-                                if shouldDismissByDistance || shouldDismissByVelocity {
-                                    withAnimation(.interpolatingSpring(stiffness: 800, damping: 100)) {
-                                        dragOffset = UIScreen.main.bounds.height
-                                    }
-
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        showResults = false
-                                        dragOffset = 0
-                                    }
-                                } else {
-                                    withAnimation {
-                                        dragOffset = 0
-                                    }
-                                }
-                            }
-                    )
-                    .transition(.move(edge: .bottom))
-                    .animation(.easeInOut, value: showResults)
-            }
         }
+        .overlay(
+            Group {
+                if showResults {
+                    resultsOverlay
+                }
+            }
+        )
     }
 }
 
