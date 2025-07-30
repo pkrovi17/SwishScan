@@ -14,8 +14,6 @@ struct MainView: View {
         // Basic tabview n shi
         TabView(selection: $selectedTab) {
             HomeView(isDarkMode: $isDarkMode, selectedTab: $selectedTab, showResults: $showHomeResults)
-                .padding(.horizontal, 10)
-                .frame(maxWidth: .infinity, alignment: .center)
                 .tabItem {
                     Image(systemName: "house.fill")
                     Text("Home")

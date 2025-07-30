@@ -19,6 +19,64 @@ struct HomeView: View {
     @State private var showSetting: String = "none"
     @State private var dragOffset: CGFloat = 0
     
+    var resultsOverlay: some View {
+        ZStack {
+            // Dim background — fade in + optional slide
+            Color.gray
+                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                .opacity(Double(1 - (dragOffset / UIScreen.main.bounds.height)) * 0.1)
+                .ignoresSafeArea()
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.3), value: showResults)
+
+            // Slide-in ResultsView
+            ResultsView(input: .date(Date()))
+                .frame(width: UIScreen.main.bounds.width - 64, height: 640)
+                .padding()
+                .background(Color("inversePrimary"))
+                .cornerRadius(16)
+                .offset(y: dragOffset)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            if value.translation.height > 0 {
+                                dragOffset = value.translation.height
+                            }
+                        }
+                        .onEnded { value in
+                            let dragDistance = value.translation.height
+                            let predictedDistance = value.predictedEndTranslation.height
+                            let dragVelocity = predictedDistance - dragDistance
+
+                            let shouldDismissByDistance = dragDistance > 500
+                            let shouldDismissByVelocity = dragVelocity > 150
+
+                            if shouldDismissByDistance || shouldDismissByVelocity {
+                                withAnimation(.interpolatingSpring(stiffness: 800, damping: 100)) {
+                                    dragOffset = UIScreen.main.bounds.height
+                                }
+
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    showResults = false
+                                    dragOffset = 0
+                                }
+                            } else {
+                                withAnimation {
+                                    dragOffset = 0
+                                }
+                            }
+                        }
+                )
+                .onAppear {
+                    dragOffset = UIScreen.main.bounds.height
+                    withAnimation(.interpolatingSpring(stiffness: 250, damping: 24)) {
+                        dragOffset = 0
+                    }
+                }
+                .transition(.move(edge: .bottom))
+        }
+    }
+    
     var body: some View {
         ZStack {
             VStack {
@@ -54,7 +112,6 @@ struct HomeView: View {
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(height: 64)
-                                        .padding(.horizontal)
                                     Text(title)
                                         .bold()
                                         .padding(.top, 12)
@@ -135,49 +192,6 @@ struct HomeView: View {
                 .padding(.bottom, 94)
             }
             
-            if showResults {
-                ResultsView(input: .date(Date())) // fill in with real date
-                    .frame(width: UIScreen.main.bounds.width - 64, height: 640)
-                    .padding()
-                    .background(Color("inversePrimary"))
-                    .cornerRadius(16)
-                    .shadow(color: .gray.opacity(0.4), radius: 200, x: 0, y: 0)
-                    .offset(y: dragOffset)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                if value.translation.height > 0 {
-                                    dragOffset = value.translation.height
-                                }
-                            }
-                            .onEnded { value in
-                                let dragDistance = value.translation.height
-                                let predictedDistance = value.predictedEndTranslation.height
-                                let dragVelocity = predictedDistance - dragDistance
-                                
-                                let shouldDismissByDistance = dragDistance > 500
-                                let shouldDismissByVelocity = dragVelocity > 150
-                                
-                                if shouldDismissByDistance || shouldDismissByVelocity {
-                                    withAnimation(.interpolatingSpring(stiffness: 500, damping: 50)) {
-                                        dragOffset = UIScreen.main.bounds.height
-                                    }
-
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        showResults = false
-                                        dragOffset = 0
-                                    }
-                                } else {
-                                    withAnimation {
-                                        dragOffset = 0
-                                    }
-                                }
-                            }
-                    )
-                    .transition(.move(edge: .bottom))
-                    .animation(.easeInOut, value: showResults)
-            }
-            
             if showSetting != "none" {
                 Group {
                     if showSetting == "units" {
@@ -212,7 +226,7 @@ struct HomeView: View {
                             let shouldDismissByVelocity = dragVelocity > 150
                             
                             if shouldDismissByDistance || shouldDismissByVelocity {
-                                withAnimation(.interpolatingSpring(stiffness: 700, damping: 50)) {
+                                withAnimation(.interpolatingSpring(stiffness: 1000, damping: 50)) {
                                     dragOffset = 200
                                 }
 
@@ -264,6 +278,13 @@ struct HomeView: View {
             greetingAdjective = times.randomElement()
             greetingMessage = messages.randomElement()!
         }
+        .overlay(
+            Group {
+                if showResults {
+                    resultsOverlay
+                }
+            }
+        )
     }
     
     func requestNotificationPermission(completion: @escaping (Bool) -> Void) {
