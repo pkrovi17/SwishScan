@@ -39,6 +39,7 @@ struct CalendarView: View {
                     currentYear: $currentYear
                 )
             }
+            .padding(EdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16))
             
             if showResults, let selectedDate {
                 Group {
@@ -52,7 +53,7 @@ struct CalendarView: View {
                 .padding()
                 .background(Color("inversePrimary"))
                 .cornerRadius(16)
-                .shadow(color: .gray.opacity(0.2), radius: 50, x: 0, y: 0)
+                .shadow(color: .gray.opacity(0.4), radius: 200, x: 0, y: 0)
                 .offset(y: dragOffset - 3)
                 .onAppear {
                     dragOffset = UIScreen.main.bounds.height
@@ -356,7 +357,7 @@ struct CalendarViewWorking: View {
     
     var body: some View {
         CalendarView(markedDates: markedDates, showResults: $showResults)
-            .padding(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
+            
     }
 }
 

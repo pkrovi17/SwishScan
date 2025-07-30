@@ -141,7 +141,7 @@ struct HomeView: View {
                     .padding()
                     .background(Color("inversePrimary"))
                     .cornerRadius(16)
-                    .shadow(color: .gray.opacity(0.2), radius: 50, x: 0, y: 0)
+                    .shadow(color: .gray.opacity(0.4), radius: 200, x: 0, y: 0)
                     .offset(y: dragOffset)
                     .gesture(
                         DragGesture()

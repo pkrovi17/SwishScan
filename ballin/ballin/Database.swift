@@ -71,38 +71,39 @@ struct DatabaseView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    square("You", isUser: true, top: true)
-                    square("Giannis Antetokounmpo", top: true)
-                    square("Devin Booker")
-                    square("Jaylen Brown")
-                    square("Stephen Curry")
-                    square("Luka Dončić")
-                    square("Kevin Durant")
-                    square("Anthony Edwards")
-                    square("Joel Embiid")
-                    square("Shai Gilgeous-Alexander")
-                    square("Tyrese Haliburton")
-                    square("Chet Holmgren")
-                    square("Kyrie Irving")
-                    square("LeBron James")
-                    square("Nikola Jokić")
-                    square("Jaren Jackson Jr.")
-                    square("Donovan Mitchell")
-                    square("Jamal Murray")
-                    square("Kristaps Porziņģis")
-                    square("Austin Reaves")
-                    square("Alperen Şengün")
-                    square("Jayson Tatum")
-                    square("Fred VanVleet")
-                    square("Victor Wembanyama")
-                    square("Zion Williamson", bottom: true)
-                    square("Trae Young", bottom: true)
+            VStack {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        square("You", isUser: true, top: true)
+                        square("Giannis Antetokounmpo", top: true)
+                        square("Devin Booker")
+                        square("Jaylen Brown")
+                        square("Stephen Curry")
+                        square("Luka Dončić")
+                        square("Kevin Durant")
+                        square("Anthony Edwards")
+                        square("Joel Embiid")
+                        square("Shai Gilgeous-Alexander")
+                        square("Tyrese Haliburton")
+                        square("Chet Holmgren")
+                        square("Kyrie Irving")
+                        square("LeBron James")
+                        square("Nikola Jokić")
+                        square("Jaren Jackson Jr.")
+                        square("Donovan Mitchell")
+                        square("Jamal Murray")
+                        square("Kristaps Porziņģis")
+                        square("Austin Reaves")
+                        square("Alperen Şengün")
+                        square("Jayson Tatum")
+                        square("Fred VanVleet")
+                        square("Victor Wembanyama")
+                        square("Zion Williamson", bottom: true)
+                        square("Trae Young", bottom: true)
+                    }
                 }
-                .padding()
+                .padding(.horizontal)
             }
-            .padding(.bottom, 8)
             Rectangle()
                 .fill(Color(.systemBackground))
                 .frame(maxWidth: .infinity, minHeight: 60, maxHeight: 60)
@@ -114,7 +115,7 @@ struct DatabaseView: View {
                     .padding()
                     .background(Color("inversePrimary"))
                     .cornerRadius(16)
-                    .shadow(color: .gray.opacity(0.2), radius: 50, x: 0, y: 0)
+                    .shadow(color: .gray.opacity(0.4), radius: 200, x: 0, y: 0)
                     .offset(y: dragOffset + 19)
                     .onAppear {
                         dragOffset = UIScreen.main.bounds.height
