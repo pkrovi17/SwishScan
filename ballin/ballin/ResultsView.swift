@@ -62,77 +62,79 @@ struct ResultsView: View {
                 } else {
                     if hasAccuracy {
                         // DATA IS UP TO 564 BUT RECTANGLE HAS HEIGHT OF 300
-                        ZStack {
-                            // 3-point arc (center adjusted upward by inset)
-                            Path { path in
-                                let center = CGPoint(x: 170, y: 300)
-                                let radius: CGFloat = 170
+                        GeometryReader { geo in
+                            ZStack {
+                                // 3-point arc (center adjusted upward by inset)
+                                Path { path in
+                                    let center = CGPoint(x: 165, y: 300)
+                                    let radius: CGFloat = 170
+                                    
+                                    path.addArc(center: center,
+                                                radius: radius,
+                                                startAngle: .degrees(208),
+                                                endAngle: .degrees(332),
+                                                clockwise: false)
+                                }
+                                .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
                                 
-                                path.addArc(center: center,
-                                            radius: radius,
-                                            startAngle: .degrees(208),
-                                            endAngle: .degrees(332),
-                                            clockwise: false)
-                            }
-                            .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                            
-                            // 3-point line sides (inset applied to x and y)
-                            Path { path in
-                                path.move(to: CGPoint(x: 20, y: 220))
-                                path.addLine(to: CGPoint(x: 20, y: 310))
+                                // 3-point line sides (inset applied to x and y)
+                                Path { path in
+                                    path.move(to: CGPoint(x: 15, y: 220))
+                                    path.addLine(to: CGPoint(x: 15, y: 310))
+                                    
+                                    path.move(to: CGPoint(x: 315, y: 220))
+                                    path.addLine(to: CGPoint(x: 315, y: 310))
+                                }
+                                .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
                                 
-                                path.move(to: CGPoint(x: 320, y: 220))
-                                path.addLine(to: CGPoint(x: 320, y: 310))
-                            }
-                            .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                            
-                            // Key
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(.clear)
+                                // Key
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(.clear)
+                                    .stroke(Color("secondaryButtonText"), lineWidth: 4)
+                                    .frame(width: 96, height: 143)
+                                    .offset(x: -5, y: 79)
+                                
+                                // Free throw circle
+                                Path { path in
+                                    let center = CGPoint(x: 31, y: 0) // half of width/height (72x72)
+                                    let radius: CGFloat = 36
+                                    
+                                    path.addArc(center: center,
+                                                radius: radius,
+                                                startAngle: .degrees(180),
+                                                endAngle: .degrees(0),
+                                                clockwise: false)
+                                }
+                                
                                 .stroke(Color("secondaryButtonText"), lineWidth: 4)
-                                .frame(width: 96, height: 143)
-                                .offset(y: 79)
-                            
-                            // Free throw circle
-                            Path { path in
-                                let center = CGPoint(x: 36, y: 0) // half of width/height (72x72)
-                                let radius: CGFloat = 36
+                                .frame(width: 72, height: 72)
+                                .offset(y: 43)
+                                
+                                
+                                
+                                // Showing shots
+                                if let shots = playerData?.shots {
+                                    let frameWidth = geo.size.width
+                                    let frameHeight = geo.size.height
 
-                                path.addArc(center: center,
-                                            radius: radius,
-                                            startAngle: .degrees(180),
-                                            endAngle: .degrees(0),
-                                            clockwise: false)
-                            }
-                            .stroke(Color("secondaryButtonText"), lineWidth: 4)
-                            .frame(width: 72, height: 72)
-                            .offset(y: 43)
+                                    let xRange: CGFloat = 500.0 // -250 to 250
+                                    let yRange: CGFloat = 450.0 // -282 to 282
 
+                                    ForEach(shots.indices, id: \.self) { index in
+                                        let shot = shots[index]
 
-                            
-                            // Showing shots
-                            if let shots = playerData?.shots {
-                                let frameWidth: CGFloat = UIScreen.main.bounds.width - 64
-                                let frameHeight: CGFloat = 320.0
+                                        let x = CGFloat(shot.LOC_X)
+                                        let y = CGFloat(shot.LOC_Y)
 
-                                let xRange: CGFloat = 500.0
-                                let yRange: CGFloat = 450.0
+                                        let scaledX = (x / xRange) * frameWidth + frameWidth / 2
+                                        let scaledY = frameHeight / 2 - (y / yRange) * frameHeight
 
-                                ForEach(shots.indices, id: \.self) { index in
-                                    let shot = shots[index]
-
-                                    let x = CGFloat(shot.LOC_X)
-                                    let y = CGFloat(shot.LOC_Y)
-
-                                    // Convert to view coordinates
-                                    let scaledX = (x / xRange) * frameWidth + frameWidth / 2
-                                    let scaledY = frameHeight / 2 - (y / yRange) * frameHeight
-
-                                    Circle()
-                                        .fill(shot.SHOT_MADE_FLAG == 1 ? .blue : .gray)
-                                        .opacity(0.5)
-                                        .frame(width: 6, height: 6)
-                                        .position(x: scaledX, y: scaledY - 55)
+                                        Circle()
+                                            .fill(shot.SHOT_MADE_FLAG == 1 ? .blue : .gray)
+                                            .opacity(0.5)
+                                            .frame(width: 6, height: 6)
+                                            .position(x: scaledX, y: scaledY - 50)
+                                    }
                                 }
                             }
                         }

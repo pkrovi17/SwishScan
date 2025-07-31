@@ -183,3 +183,9 @@ extension DatabaseView {
             .padding(.bottom, bottom ? 32 : 0)
     }
 }
+
+
+#Preview {
+    @Previewable @State var asd = false
+    DatabaseView(showResults: $asd)
+}
