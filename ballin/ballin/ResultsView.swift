@@ -61,35 +61,28 @@ struct ResultsView: View {
                 if !hasAccuracy && !hasForm {
                 } else {
                     if hasAccuracy {
-                        // Rectangle to hold half-court accuracy data
                         // DATA IS UP TO 564 BUT RECTANGLE HAS HEIGHT OF 300
-                        let inset: CGFloat = 12 // space between lines and outer border
                         ZStack {
-                            // Court perimeter (adjusted for inset)
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color("secondaryButtonBackground"))
-                                .stroke(Color("secondaryButtonBackground"), lineWidth: 4)
-                            
                             // 3-point arc (center adjusted upward by inset)
                             Path { path in
-                                let center = CGPoint(x: 170, y: 308 - inset)
-                                let radius: CGFloat = 150 - inset
+                                let center = CGPoint(x: 170, y: 300)
+                                let radius: CGFloat = 170
                                 
                                 path.addArc(center: center,
                                             radius: radius,
-                                            startAngle: .degrees(214.5),
-                                            endAngle: .degrees(325.5),
+                                            startAngle: .degrees(208),
+                                            endAngle: .degrees(332),
                                             clockwise: false)
                             }
                             .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
                             
                             // 3-point line sides (inset applied to x and y)
                             Path { path in
-                                path.move(to: CGPoint(x: 44 + inset, y: 220))
-                                path.addLine(to: CGPoint(x: 44 + inset, y: 320 - inset))
+                                path.move(to: CGPoint(x: 20, y: 220))
+                                path.addLine(to: CGPoint(x: 20, y: 310))
                                 
-                                path.move(to: CGPoint(x: 296 - inset, y: 220))
-                                path.addLine(to: CGPoint(x: 296 - inset, y: 320 - inset))
+                                path.move(to: CGPoint(x: 320, y: 220))
+                                path.addLine(to: CGPoint(x: 320, y: 310))
                             }
                             .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
                             
@@ -97,23 +90,33 @@ struct ResultsView: View {
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(.clear)
                                 .stroke(Color("secondaryButtonText"), lineWidth: 4)
-                                .frame(width: 96, height: 114)
-                                .offset(y: 103 - inset)
+                                .frame(width: 96, height: 143)
+                                .offset(y: 79)
                             
                             // Free throw circle
-                            Circle()
-                                .fill(.clear)
-                                .stroke(Color("secondaryButtonText"), lineWidth: 4)
-                                .frame(width: 72, height: 72)
-                                .offset(y: 46 - inset)
+                            Path { path in
+                                let center = CGPoint(x: 36, y: 0) // half of width/height (72x72)
+                                let radius: CGFloat = 36
+
+                                path.addArc(center: center,
+                                            radius: radius,
+                                            startAngle: .degrees(180),
+                                            endAngle: .degrees(0),
+                                            clockwise: false)
+                            }
+                            .stroke(Color("secondaryButtonText"), lineWidth: 4)
+                            .frame(width: 72, height: 72)
+                            .offset(y: 43)
+
+
                             
                             // Showing shots
                             if let shots = playerData?.shots {
                                 let frameWidth: CGFloat = UIScreen.main.bounds.width - 64
                                 let frameHeight: CGFloat = 320.0
 
-                                let xRange: CGFloat = 500.0 // -250 to 250
-                                let yRange: CGFloat = 564.0 // -282 to 282
+                                let xRange: CGFloat = 500.0
+                                let yRange: CGFloat = 450.0
 
                                 ForEach(shots.indices, id: \.self) { index in
                                     let shot = shots[index]
@@ -129,12 +132,13 @@ struct ResultsView: View {
                                         .fill(shot.SHOT_MADE_FLAG == 1 ? .blue : .gray)
                                         .opacity(0.5)
                                         .frame(width: 6, height: 6)
-                                        .position(x: scaledX, y: scaledY)
+                                        .position(x: scaledX, y: scaledY - 55)
                                 }
                             }
                         }
                         .frame(width: UIScreen.main.bounds.width - 64, height: 320)
-                        .padding(.top)
+                        .background(Color("secondaryButtonBackground"))
+                        .cornerRadius(16)
                     }
                     if hasForm {
                         VStack {
@@ -201,11 +205,13 @@ struct Player: Codable {
     let shots: [Shot]
 }
 
+
 enum DayOrPlayer {
     case date(Date)
     case player(String)
 }
 
+
 #Preview {
-    ResultsView(input: .player("Lebron James"))
+    ResultsView(input: .player("Stephen Curry"))
 }
