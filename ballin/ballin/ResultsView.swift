@@ -53,9 +53,10 @@ struct ResultsView: View {
             }
             .font(.title)
             .fontWeight(.bold)
-            .padding(.horizontal)
-            .padding(.top, 24)
-            .frame(width: 336, alignment: .leading)
+            .padding()
+            .frame(width: UIScreen.main.bounds.width - 64, height: 60, alignment: .leading)
+            .background(Color("secondaryButtonBackground"))
+            .cornerRadius(16)
             Spacer()
             VStack(spacing: 16) {
                 if !hasAccuracy && !hasForm {
@@ -130,7 +131,7 @@ struct ResultsView: View {
                                         let scaledY = frameHeight / 2 - (y / yRange) * frameHeight
 
                                         Circle()
-                                            .fill(shot.SHOT_MADE_FLAG == 1 ? .blue : .gray)
+                                            .fill(shot.SHOT_MADE_FLAG == 1 ? .blue : Color("secondaryButtonText"))
                                             .opacity(0.5)
                                             .frame(width: 6, height: 6)
                                             .position(x: scaledX, y: scaledY - 50)
@@ -139,16 +140,12 @@ struct ResultsView: View {
                             }
                         }
                         .frame(width: UIScreen.main.bounds.width - 64, height: 320)
-                        .background(Color("secondaryButtonBackground"))
-                        .cornerRadius(16)
                     }
                     if hasForm {
                         VStack {
                             Text("Form data will appear here.")
                         }
                         .frame(width: UIScreen.main.bounds.width - 64, height: 150)
-                        .background((Color("secondaryButtonBackground")))
-                        .cornerRadius(16)
                     }
                 }
             }
