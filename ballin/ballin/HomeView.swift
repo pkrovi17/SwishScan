@@ -296,6 +296,7 @@ struct HomeView: View {
     }
     
     func scheduleNotification() {
+        // TODO: eventually remind user to keep their streak going
         let center = UNUserNotificationCenter.current()
         
         // Remove all previous notifications to avoid duplicates

@@ -2592,14 +2592,14 @@
             "LOC_Y": -82
         },
         {
-            "SHOT_MADE_FLAG": 0,
-            "LOC_X": 34,
-            "LOC_Y": -269
-        },
-        {
             "SHOT_MADE_FLAG": 1,
             "LOC_X": 9,
             "LOC_Y": -267
+        },
+        {
+            "SHOT_MADE_FLAG": 0,
+            "LOC_X": 34,
+            "LOC_Y": -269
         },
         {
             "SHOT_MADE_FLAG": 0,

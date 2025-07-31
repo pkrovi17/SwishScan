@@ -562,12 +562,12 @@
             "LOC_Y": 8
         },
         {
-            "SHOT_MADE_FLAG": 1,
+            "SHOT_MADE_FLAG": 0,
             "LOC_X": 0,
             "LOC_Y": -282
         },
         {
-            "SHOT_MADE_FLAG": 0,
+            "SHOT_MADE_FLAG": 1,
             "LOC_X": 0,
             "LOC_Y": -282
         },
@@ -4108,13 +4108,13 @@
         },
         {
             "SHOT_MADE_FLAG": 0,
-            "LOC_X": 16,
-            "LOC_Y": -250
+            "LOC_X": 0,
+            "LOC_Y": -269
         },
         {
             "SHOT_MADE_FLAG": 0,
-            "LOC_X": 0,
-            "LOC_Y": -269
+            "LOC_X": 16,
+            "LOC_Y": -250
         },
         {
             "SHOT_MADE_FLAG": 1,
