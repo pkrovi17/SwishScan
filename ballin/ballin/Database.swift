@@ -158,8 +158,8 @@ struct DatabaseView: View {
                         square("Zion Williamson", bottom: true)
                         square("Trae Young", bottom: true)
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             }
             Rectangle()
                 .fill(Color(.systemBackground))
