@@ -89,7 +89,6 @@ struct CalendarView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.leading)
-                    .padding(.top)
                     .contentTransition(.numericText(value: Double(currentYear)))
                     .animation(.easeInOut, value: currentYear)
                 
@@ -365,6 +364,7 @@ struct CalendarViewWorking: View {
         let calendar = Calendar.current
         return [
             calendar.date(from: DateComponents(year: 2025, month: 7, day: 15))!,
+            calendar.date(from: DateComponents(year: 2025, month: 7, day: 16))!,
             calendar.date(from: DateComponents(year: 2025, month: 7, day: 19))!,
             // REPLACE WITH REAL DATE DATA
         ]

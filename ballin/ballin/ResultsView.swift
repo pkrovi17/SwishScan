@@ -45,16 +45,16 @@ struct ResultsView: View {
             Group {
                 switch input {
                 case .date(let day):
-                    Text(day.formatted(date: .abbreviated, time: .omitted))
+                    Text(day.formatted(.dateTime.month(.wide).day().year()))
                 case .player(let name):
                     Text(name)
                         
                 }
             }
-            .font(.title)
-            .fontWeight(.bold)
+            .font(.system(size: 24, weight: .semibold))
             .padding()
             .frame(width: UIScreen.main.bounds.width - 64, height: 60, alignment: .leading)
+            .foregroundStyle(Color("secondaryButtonText"))
             .background(Color("secondaryButtonBackground"))
             .cornerRadius(16)
             Spacer()
@@ -65,7 +65,7 @@ struct ResultsView: View {
                         // DATA IS UP TO 564 BUT RECTANGLE HAS HEIGHT OF 300
                         GeometryReader { geo in
                             ZStack {
-                                // 3-point arc (center adjusted upward by inset)
+                                // 3-point arc
                                 Path { path in
                                     let center = CGPoint(x: 165, y: 300)
                                     let radius: CGFloat = 170
@@ -78,7 +78,7 @@ struct ResultsView: View {
                                 }
                                 .stroke(Color("secondaryButtonText"), style: StrokeStyle(lineWidth: 4, lineCap: .round))
                                 
-                                // 3-point line sides (inset applied to x and y)
+                                // 3-point vertical lines
                                 Path { path in
                                     path.move(to: CGPoint(x: 15, y: 220))
                                     path.addLine(to: CGPoint(x: 15, y: 310))
@@ -95,7 +95,7 @@ struct ResultsView: View {
                                     .frame(width: 96, height: 143)
                                     .offset(x: -5, y: 79)
                                 
-                                // Free throw circle
+                                // Free throw semi-circle
                                 Path { path in
                                     let center = CGPoint(x: 31, y: 0) // half of width/height (72x72)
                                     let radius: CGFloat = 36
