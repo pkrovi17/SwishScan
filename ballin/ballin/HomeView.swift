@@ -30,7 +30,13 @@ struct HomeView: View {
                 .animation(.easeInOut(duration: 0.3), value: showResults)
 
             // Slide-in ResultsView
-            ResultsView(input: .date(Date()))
+            Group {
+                if false  /* TODO: [some condition to check if analysis is made] */ {
+                    ResultsView(input: .date(Date()))
+                } else {
+                    Text("Processing data...")
+                }
+            }
                 .frame(width: UIScreen.main.bounds.width - 64, height: 640)
                 .padding()
                 .background(Color("inversePrimary"))
