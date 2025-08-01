@@ -250,11 +250,9 @@ struct HomeView: View {
                 .transition(.move(edge: .bottom))
                 .animation(.easeInOut, value: showResults)
                 .onChange(of: notificationTiming) { oldValue, newValue in
-                    if oldValue == .none {
-                        requestNotificationPermission { allowed in
-                            if allowed {
-                                scheduleNotification()
-                            }
+                    requestNotificationPermission { allowed in
+                        if allowed {
+                            scheduleNotification()
                         }
                     }
                 }
@@ -308,47 +306,29 @@ struct HomeView: View {
         // Remove all previous notifications to avoid duplicates
         center.removeAllPendingNotificationRequests()
         
-        let content = UNMutableNotificationContent()
-        content.title = "Time to Practice!"
-        content.body = "Open the app and get some basketball reps in."
-        content.sound = .default
+        if notificationTiming != .none {
+            let content = UNMutableNotificationContent()
+            content.title = "Time to Practice!"
+            content.body = "Open the app and get some basketball reps in."
+            content.sound = .default
 
-        let frequency: Double
-        if notificationTiming == .weekly {
-            frequency = 604800 // seconds in a week
-        } else {
-            frequency = 86400 // seconds in a day
-        }
-
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: frequency, repeats: true)
-        
-        let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
-            content: content,
-            trigger: trigger
-        )
-
-        center.add(request)
-    }
-}
-
-
-struct NotificationsSettingView: View {
-    @Binding var reminderFrequency: ReminderFrequency
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text("Reminders")
-                .font(.headline)
-            
-            Picker("Reminder Frequency", selection: $reminderFrequency) {
-                ForEach(ReminderFrequency.allCases, id: \.self) { frequency in
-                    Text(frequency.rawValue).tag(frequency)
-                }
+            let frequency: Double
+            if notificationTiming == .weekly {
+                frequency = 604800 // seconds in a week
+            } else {
+                frequency = 86400 // seconds in a day
             }
-            .pickerStyle(.segmented)
+
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: frequency, repeats: true)
+            
+            let request = UNNotificationRequest(
+                identifier: UUID().uuidString,
+                content: content,
+                trigger: trigger
+            )
+
+            center.add(request)
         }
-        .padding(EdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 28))
     }
 }
 
@@ -364,6 +344,26 @@ struct UnitsSettingView: View {
             Picker("Units", selection: $units) {
                 ForEach(Units.allCases, id: \.self) { unit in
                     Text(unit.rawValue).tag(unit)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(EdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 28))
+    }
+}
+
+
+struct NotificationsSettingView: View {
+    @Binding var reminderFrequency: ReminderFrequency
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Reminders")
+                .font(.headline)
+            
+            Picker("Reminder Frequency", selection: $reminderFrequency) {
+                ForEach(ReminderFrequency.allCases, id: \.self) { frequency in
+                    Text(frequency.rawValue).tag(frequency)
                 }
             }
             .pickerStyle(.segmented)
